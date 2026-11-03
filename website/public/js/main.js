@@ -40,6 +40,19 @@
   const tr = (obj) => (obj ? obj[lang] || obj.ar || obj.en || '' : '');
   const fmt = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
+  // Two back-ends: the Node server (/api/…) or a Google Apps Script web app (free version, set in js/config.js)
+  const API_URL = String((window.DODIT_CONFIG && window.DODIT_CONFIG.apiUrl) || '').trim();
+  const api = {
+    site: () => fetch(API_URL ? API_URL + '?action=site' : '/api/site'),
+    slots: (date) =>
+      fetch(API_URL ? API_URL + '?action=slots&date=' + encodeURIComponent(date) : '/api/slots?date=' + encodeURIComponent(date)),
+    // Apps Script needs a "simple" request (no JSON content-type) to avoid a CORS preflight
+    book: (payload) =>
+      API_URL
+        ? fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'book', ...payload }) })
+        : fetch('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }),
+  };
+
   function fmtTime(time) {
     let [hh, mm] = time.split(':').map(Number);
     const suffix = hh >= 12 ? t('pm') : t('am');
@@ -308,7 +321,7 @@
     $('#slotsTitle').textContent = `${t('booking.slotsFor')} ${fmtDate(date)}`;
     if (!quiet) box.replaceChildren(h('p', { class: 'slots-msg', text: t('booking.loading') }));
     try {
-      const res = await fetch('/api/slots?date=' + date);
+      const res = await api.slots(date);
       const data = await res.json();
       if (req !== slotsReq) return;
       if (!data.open) return box.replaceChildren(h('p', { class: 'slots-msg', text: t('booking.closed') }));
@@ -365,13 +378,9 @@
     btn.disabled = true;
     btn.textContent = t('booking.sending');
     try {
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, serviceId: booking.serviceId, date: booking.date, time: booking.time }),
-      });
-      const out = await res.json().catch(() => ({}));
-      if (!res.ok) {
+      const res = await api.book({ ...data, serviceId: booking.serviceId, date: booking.date, time: booking.time });
+      const out = await res.json().catch(() => ({ error: 'generic' }));
+      if (!res.ok || out.error) {
         err.textContent = t('err.' + out.error) !== 'err.' + out.error ? t('err.' + out.error) : t('err.generic');
         if (out.error === 'slot_taken') {
           booking.time = null;
@@ -434,8 +443,12 @@
 
   /* ---------------- boot ---------------- */
   applyLang();
-  fetch('/api/site')
+  api.site()
     .then((r) => r.json())
-    .then((data) => { site = data; render(); })
+    .then((data) => {
+      if (data.error) throw new Error(data.error);
+      site = data;
+      render();
+    })
     .catch(() => console.error('Could not load site data'));
 })();

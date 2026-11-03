@@ -213,6 +213,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// The Node server is its own back-end, so the Google Sheets API URL is never used here
+app.get('/js/config.js', (req, res) => {
+  res.type('application/javascript').send("window.DODIT_CONFIG = { apiUrl: '' };\n");
+});
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }));
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
