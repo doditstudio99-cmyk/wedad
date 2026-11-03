@@ -23,7 +23,12 @@ ADMIN_PASSWORD=كلمة-سر-قوية npm start
 ## الرفع على الإنترنت
 الموقع محتاج سيرفر Node.js (عشان الحجز)، ومحتاج **مساحة تخزين دائمة** (Volume/Disk) للحجوزات والصور.
 
-### Railway (الأسهل)
+### Render — بضغطة زرار (الأسهل)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/doditstudio99-cmyk/wedad)
+
+اضغط الزرار ← سجّل دخول بـ GitHub ← اكتب كلمة سر لوحة التحكم في خانة `ADMIN_PASSWORD` ← **Apply**. الإعدادات كلها جاهزة في `render.yaml`.
+
+### Railway
 1. New Project ← Deploy from GitHub ← اختار الريبو ده، وخلي **Root Directory = `website`**.
 2. Variables: `ADMIN_PASSWORD` = كلمة السر، و`DATA_DIR` = `/data`.
 3. ضيف **Volume** على المسار `/data`.

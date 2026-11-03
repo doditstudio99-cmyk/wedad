@@ -1,0 +1,23 @@
+# One-click deploy of the Dodit Studio website on Render.
+# https://render.com/deploy?repo=https://github.com/doditstudio99-cmyk/wedad
+services:
+  - type: web
+    name: dodit-studio
+    runtime: node
+    region: frankfurt
+    plan: starter
+    rootDir: website
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/site
+    envVars:
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATA_DIR
+        value: /var/data
+      - key: TZ
+        value: Africa/Cairo
+    disk:
+      name: dodit-data
+      mountPath: /var/data
+      sizeGB: 1
