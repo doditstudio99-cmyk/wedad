@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dodit Studio | دوديت ستوديو</title>
+  <meta name="description" content="Dodit Studio — تصوير ريلز وفيديوهات سمارت بورد للدكاترة والمحامين والمدرسين وأصحاب العقارات." />
+  <meta name="theme-color" content="#FF6B00" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="#home" class="logo" aria-label="Dodit Studio">
+        <span class="logo-mark">D</span>
+        <span class="logo-text">dodit<b>studio</b></span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#about" data-i18n="nav.about"></a>
+        <a href="#services" data-i18n="nav.services"></a>
+        <a href="#portfolio" data-i18n="nav.portfolio"></a>
+        <a href="#testimonials" data-i18n="nav.testimonials"></a>
+        <a href="#contact" data-i18n="nav.contact"></a>
+      </nav>
+      <div class="header-actions">
+        <button class="lang-btn" id="langBtn" type="button" aria-label="Switch language">EN</button>
+        <a href="#booking" class="btn btn-primary btn-sm hide-sm" data-i18n="nav.book"></a>
+        <button class="menu-btn" id="menuBtn" type="button" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="blob b1"></div><div class="blob b2"></div><div class="grid-lines"></div>
+      </div>
+      <div class="container hero-inner">
+        <div class="hero-text reveal">
+          <span class="pill" data-bind="tagline"></span>
+          <h1 data-bind="heroTitle"></h1>
+          <p class="lead" data-bind="heroSubtitle"></p>
+          <div class="hero-cta">
+            <a href="#booking" class="btn btn-primary" data-i18n="hero.book"></a>
+            <a href="#portfolio" class="btn btn-ghost" data-i18n="hero.work"></a>
+          </div>
+          <ul class="hero-points">
+            <li data-i18n="hero.p1"></li>
+            <li data-i18n="hero.p2"></li>
+            <li data-i18n="hero.p3"></li>
+          </ul>
+        </div>
+        <div class="hero-visual reveal" aria-hidden="true">
+          <div class="phone">
+            <div class="phone-screen" id="heroScreen">
+              <div class="rec"><i></i> REC</div>
+              <div class="reel-ui">
+                <div class="reel-bar"><span></span></div>
+                <div class="reel-caption" data-i18n="hero.reelCaption"></div>
+              </div>
+            </div>
+          </div>
+          <div class="board">
+            <div class="board-screen">
+              <svg viewBox="0 0 200 110" class="board-svg">
+                <polyline points="10,90 50,70 85,78 120,40 160,48 190,15" />
+                <circle cx="190" cy="15" r="5" />
+              </svg>
+              <span class="board-label" data-i18n="hero.board"></span>
+            </div>
+            <div class="board-stand"></div>
+          </div>
+          <div class="float-card fc1"><b>+250%</b><span data-i18n="hero.reach"></span></div>
+          <div class="float-card fc2"><b>4K</b><span data-i18n="hero.quality"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section class="audience">
+      <div class="container">
+        <p class="section-kicker center" data-i18n="aud.kicker"></p>
+        <div class="aud-grid">
+          <div class="aud-card reveal"><div class="aud-ico">🩺</div><h3 data-i18n="cat.doctors"></h3><p data-i18n="aud.doctors"></p></div>
+          <div class="aud-card reveal"><div class="aud-ico">⚖️</div><h3 data-i18n="cat.lawyers"></h3><p data-i18n="aud.lawyers"></p></div>
+          <div class="aud-card reveal"><div class="aud-ico">📚</div><h3 data-i18n="cat.teachers"></h3><p data-i18n="aud.teachers"></p></div>
+          <div class="aud-card reveal"><div class="aud-ico">🏢</div><h3 data-i18n="cat.realestate"></h3><p data-i18n="aud.realestate"></p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section" id="about">
+      <div class="container about-grid">
+        <div class="reveal">
+          <p class="section-kicker" data-i18n="about.kicker"></p>
+          <h2 data-i18n="about.title"></h2>
+          <p class="about-text" data-bind="about"></p>
+          <div class="stats">
+            <div><b data-count="300">0</b><span data-i18n="about.s1"></span></div>
+            <div><b data-count="80">0</b><span data-i18n="about.s2"></span></div>
+            <div><b data-count="4">0</b><span data-i18n="about.s3"></span></div>
+          </div>
+        </div>
+        <div class="steps reveal">
+          <h3 data-i18n="steps.title"></h3>
+          <ol>
+            <li><b>01</b><div><h4 data-i18n="steps.1t"></h4><p data-i18n="steps.1d"></p></div></li>
+            <li><b>02</b><div><h4 data-i18n="steps.2t"></h4><p data-i18n="steps.2d"></p></div></li>
+            <li><b>03</b><div><h4 data-i18n="steps.3t"></h4><p data-i18n="steps.3d"></p></div></li>
+            <li><b>04</b><div><h4 data-i18n="steps.4t"></h4><p data-i18n="steps.4d"></p></div></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section section-alt" id="services">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="section-kicker" data-i18n="services.kicker"></p>
+          <h2 data-i18n="services.title"></h2>
+          <p data-i18n="services.sub"></p>
+        </div>
+        <div class="services-grid" id="servicesGrid"></div>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO -->
+    <section class="section" id="portfolio">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="section-kicker" data-i18n="portfolio.kicker"></p>
+          <h2 data-i18n="portfolio.title"></h2>
+        </div>
+        <div class="filters" id="filters"></div>
+        <div class="portfolio-grid" id="portfolioGrid"></div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section section-dark" id="testimonials">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="section-kicker" data-i18n="testimonials.kicker"></p>
+          <h2 data-i18n="testimonials.title"></h2>
+        </div>
+        <div class="testimonials-grid" id="testimonialsGrid"></div>
+      </div>
+    </section>
+
+    <!-- BOOKING -->
+    <section class="section section-alt" id="booking">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="section-kicker" data-i18n="booking.kicker"></p>
+          <h2 data-i18n="booking.title"></h2>
+          <p data-i18n="booking.sub"></p>
+        </div>
+
+        <div class="booking-card reveal">
+          <div class="booking-steps">
+            <span class="bstep active" data-step="1"><i>1</i><em data-i18n="booking.s1"></em></span>
+            <span class="bstep" data-step="2"><i>2</i><em data-i18n="booking.s2"></em></span>
+            <span class="bstep" data-step="3"><i>3</i><em data-i18n="booking.s3"></em></span>
+          </div>
+
+          <!-- Step 1: service -->
+          <div class="bpanel" data-panel="1">
+            <h3 data-i18n="booking.chooseService"></h3>
+            <div class="svc-options" id="svcOptions"></div>
+            <div class="bnav"><span></span><button class="btn btn-primary" id="toStep2" disabled data-i18n="booking.next"></button></div>
+          </div>
+
+          <!-- Step 2: date + time -->
+          <div class="bpanel" data-panel="2" hidden>
+            <div class="date-time">
+              <div class="calendar">
+                <div class="cal-head">
+                  <button type="button" class="cal-nav" id="calPrev" aria-label="previous">‹</button>
+                  <strong id="calTitle"></strong>
+                  <button type="button" class="cal-nav" id="calNext" aria-label="next">›</button>
+                </div>
+                <div class="cal-grid cal-week" id="calWeek"></div>
+                <div class="cal-grid" id="calDays"></div>
+              </div>
+              <div class="slots-wrap">
+                <h4 id="slotsTitle" data-i18n="booking.pickDate"></h4>
+                <div class="slots" id="slots"></div>
+                <div class="legend">
+                  <span><i class="lg available"></i><em data-i18n="booking.available"></em></span>
+                  <span><i class="lg booked"></i><em data-i18n="booking.booked"></em></span>
+                </div>
+              </div>
+            </div>
+            <div class="bnav">
+              <button class="btn btn-ghost" data-back="1" data-i18n="booking.back"></button>
+              <button class="btn btn-primary" id="toStep3" disabled data-i18n="booking.next"></button>
+            </div>
+          </div>
+
+          <!-- Step 3: details -->
+          <div class="bpanel" data-panel="3" hidden>
+            <div class="summary" id="summary"></div>
+            <form id="bookingForm" class="bform" novalidate>
+              <div class="frow">
+                <label><span data-i18n="booking.name"></span><input name="name" required maxlength="100" autocomplete="name" /></label>
+                <label><span data-i18n="booking.phone"></span><input name="phone" required inputmode="tel" maxlength="20" autocomplete="tel" dir="ltr" /></label>
+              </div>
+              <label><span data-i18n="booking.field"></span>
+                <select name="category">
+                  <option value="doctors" data-i18n="cat.doctors"></option>
+                  <option value="lawyers" data-i18n="cat.lawyers"></option>
+                  <option value="teachers" data-i18n="cat.teachers"></option>
+                  <option value="realestate" data-i18n="cat.realestate"></option>
+                  <option value="business" data-i18n="cat.business"></option>
+                  <option value="other" data-i18n="cat.other"></option>
+                </select>
+              </label>
+              <label><span data-i18n="booking.notes"></span><textarea name="notes" rows="3" maxlength="1000"></textarea></label>
+              <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <p class="form-error" id="formError" role="alert"></p>
+              <div class="bnav">
+                <button type="button" class="btn btn-ghost" data-back="2" data-i18n="booking.back"></button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" data-i18n="booking.confirm"></button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Done -->
+          <div class="bpanel done" data-panel="4" hidden>
+            <div class="done-ico">✓</div>
+            <h3 data-i18n="booking.doneTitle"></h3>
+            <p id="doneText"></p>
+            <div class="hero-cta center">
+              <a class="btn btn-primary" id="doneWa" target="_blank" rel="noopener" data-i18n="booking.sendWa"></a>
+              <button class="btn btn-ghost" id="newBooking" data-i18n="booking.new"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <div class="container contact-grid">
+        <div class="reveal">
+          <p class="section-kicker" data-i18n="contact.kicker"></p>
+          <h2 data-i18n="contact.title"></h2>
+          <ul class="contact-list">
+            <li><span class="ci">📍</span><div><small data-i18n="contact.address"></small><b data-bind="address"></b></div></li>
+            <li><span class="ci">📞</span><div><small data-i18n="contact.phone"></small><a id="phoneLink" dir="ltr"></a></div></li>
+            <li><span class="ci">✉️</span><div><small data-i18n="contact.email"></small><a id="emailLink"></a></div></li>
+            <li><span class="ci">🕒</span><div><small data-i18n="contact.hours"></small><b id="hoursText"></b></div></li>
+          </ul>
+          <div class="hero-cta">
+            <a class="btn btn-wa" id="waBtn" target="_blank" rel="noopener"><span data-i18n="contact.wa"></span></a>
+          </div>
+          <div class="socials" id="socials"></div>
+        </div>
+        <div class="map reveal">
+          <iframe id="mapFrame" title="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <a href="#home" class="logo"><span class="logo-mark">D</span><span class="logo-text">dodit<b>studio</b></span></a>
+      <p>© <span id="year"></span> Dodit Studio — <span data-i18n="footer.rights"></span></p>
+      <div class="socials small" id="socialsFooter"></div>
+    </div>
+  </footer>
+
+  <a class="wa-float" id="waFloat" target="_blank" rel="noopener" aria-label="WhatsApp">
+    <svg viewBox="0 0 32 32" width="30" height="30"><path fill="currentColor" d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.5L3 29l6.7-1.7c1.9 1 4.1 1.6 6.3 1.6 7.2 0 13-5.8 13-13S23.2 3 16 3zm0 23.7c-2 0-4-.5-5.7-1.6l-.4-.2-4 1 1.1-3.9-.3-.4C5.6 19.9 5.1 18 5.1 16 5.1 10 10 5.2 16 5.2S26.9 10 26.9 16 22 26.7 16 26.7zm6-8.1c-.3-.2-1.9-1-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1.1-1 1.3-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.7 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.4z"/></svg>
+  </a>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lb-close" id="lbClose" aria-label="close">×</button>
+    <div class="lb-body" id="lbBody"></div>
+  </div>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

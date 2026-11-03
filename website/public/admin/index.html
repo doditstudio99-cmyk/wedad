@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>لوحة التحكم | Dodit Studio</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+  <!-- LOGIN -->
+  <section class="login" id="login" hidden>
+    <form class="login-card" id="loginForm">
+      <div class="brand"><span class="logo-mark">D</span><b>dodit<span>studio</span></b></div>
+      <h1>لوحة التحكم</h1>
+      <label>كلمة السر<input type="password" name="password" required autocomplete="current-password" /></label>
+      <p class="error" id="loginError"></p>
+      <button class="btn primary" type="submit">دخول</button>
+      <a href="/" class="muted-link">← الرجوع للموقع</a>
+    </form>
+  </section>
+
+  <!-- APP -->
+  <div class="app" id="app" hidden>
+    <aside class="sidebar">
+      <div class="brand"><span class="logo-mark">D</span><b>dodit<span>studio</span></b></div>
+      <nav id="tabs">
+        <button data-tab="bookings" class="active">📅 الحجوزات <span class="count" id="pendingCount"></span></button>
+        <button data-tab="schedule">🕒 مواعيد العمل</button>
+        <button data-tab="services">💼 الخدمات والأسعار</button>
+        <button data-tab="portfolio">🎬 معرض الأعمال</button>
+        <button data-tab="testimonials">⭐ آراء العملاء</button>
+        <button data-tab="settings">⚙️ الإعدادات</button>
+      </nav>
+      <div class="side-foot">
+        <a href="/" target="_blank" class="btn ghost sm">🌐 فتح الموقع</a>
+        <button class="btn ghost sm" id="logout">خروج</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- BOOKINGS -->
+      <section class="tab" data-panel="bookings">
+        <header class="tab-head">
+          <div><h2>الحجوزات</h2><p>كل الحجوزات اللي جات من الموقع، وتقدر تضيف حجز يدوي أو تقفل معاد.</p></div>
+          <button class="btn primary" id="addBookingBtn">+ حجز يدوي / قفل معاد</button>
+        </header>
+        <div class="toolbar">
+          <div class="seg" id="bookingFilter">
+            <button data-f="upcoming" class="active">القادمة</button>
+            <button data-f="today">النهارده</button>
+            <button data-f="pending">في انتظار التأكيد</button>
+            <button data-f="past">السابقة</button>
+            <button data-f="all">الكل</button>
+          </div>
+          <input type="search" id="bookingSearch" placeholder="بحث بالاسم أو الرقم…" />
+        </div>
+        <div id="bookingsList" class="cards"></div>
+      </section>
+
+      <!-- SCHEDULE -->
+      <section class="tab" data-panel="schedule" hidden>
+        <header class="tab-head"><div><h2>مواعيد العمل</h2><p>حدد الأيام والساعات اللي الاستوديو شغال فيها، والعملاء هيشوفوا المواعيد المتاحة بس.</p></div></header>
+        <form id="scheduleForm" class="panel">
+          <h3>أيام الأسبوع</h3>
+          <div id="daysEditor" class="days"></div>
+          <h3>إعدادات الحجز</h3>
+          <div class="grid3">
+            <label>مدة كل معاد (بالدقائق)<input type="number" name="slotMinutes" min="15" max="480" step="15" /></label>
+            <label>أقل وقت قبل الحجز (بالدقائق)<input type="number" name="minNoticeMinutes" min="0" step="15" /></label>
+            <label>الحجز متاح لكام يوم قدام<input type="number" name="maxDaysAhead" min="1" max="365" /></label>
+          </div>
+          <h3>أيام إجازة / قفل</h3>
+          <div class="inline">
+            <input type="date" id="closedDateInput" />
+            <button type="button" class="btn ghost" id="addClosedDate">+ إضافة يوم إجازة</button>
+          </div>
+          <div class="chips" id="closedDates"></div>
+          <div class="save-bar"><button class="btn primary" type="submit">حفظ المواعيد</button></div>
+        </form>
+      </section>
+
+      <!-- COLLECTIONS -->
+      <section class="tab" data-panel="services" hidden>
+        <header class="tab-head"><div><h2>الخدمات والأسعار</h2><p>الباقات اللي بتظهر في الموقع وفي خطوة الحجز.</p></div><button class="btn primary" data-add="services">+ خدمة جديدة</button></header>
+        <div class="cards" data-list="services"></div>
+      </section>
+      <section class="tab" data-panel="portfolio" hidden>
+        <header class="tab-head"><div><h2>معرض الأعمال</h2><p>ارفع صور وفيديوهات شغلك، أو حط لينك ريل من إنستجرام/تيك توك/يوتيوب.</p></div><button class="btn primary" data-add="portfolio">+ عمل جديد</button></header>
+        <div class="cards grid-cards" data-list="portfolio"></div>
+      </section>
+      <section class="tab" data-panel="testimonials" hidden>
+        <header class="tab-head"><div><h2>آراء العملاء</h2></div><button class="btn primary" data-add="testimonials">+ رأي جديد</button></header>
+        <div class="cards" data-list="testimonials"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="tab" data-panel="settings" hidden>
+        <header class="tab-head"><div><h2>الإعدادات</h2><p>نصوص الموقع وبيانات التواصل والسوشيال ميديا.</p></div></header>
+        <form id="settingsForm" class="panel"></form>
+        <form id="passwordForm" class="panel">
+          <h3>تغيير كلمة السر</h3>
+          <div class="grid2">
+            <label>كلمة السر الحالية<input type="password" name="current" required autocomplete="current-password" /></label>
+            <label>كلمة السر الجديدة (٦ حروف على الأقل)<input type="password" name="next" required minlength="6" autocomplete="new-password" /></label>
+          </div>
+          <div class="save-bar"><button class="btn primary" type="submit">تغيير كلمة السر</button></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal" hidden>
+    <form class="modal-card" id="modalForm">
+      <header><h3 id="modalTitle"></h3><button type="button" class="x" data-close>×</button></header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer>
+        <p class="error" id="modalError"></p>
+        <button type="button" class="btn ghost" data-close>إلغاء</button>
+        <button type="submit" class="btn primary">حفظ</button>
+      </footer>
+    </form>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>
