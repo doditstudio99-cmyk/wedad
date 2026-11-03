@@ -1,0 +1,17 @@
+# Free hosting of the Dodit Studio website on Netlify (Google Sheets version).
+# The site is plain static files; bookings go to the Apps Script URL set in website/public/js/config.js.
+[build]
+  base = "website/public"
+  publish = "."
+  command = "echo 'static site, nothing to build'"
+
+# The admin panel needs the Node server; in the free version the Google Sheet is the admin panel.
+[[redirects]]
+  from = "/admin/*"
+  to = "/"
+  status = 302
+
+[[redirects]]
+  from = "/admin"
+  to = "/"
+  status = 302
