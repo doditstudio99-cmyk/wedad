@@ -20,6 +20,8 @@
 | إزاي تتختار | `js/config.js` السيرفر بيرجّعه فاضي دايماً | `apiUrl` في `website/public/js/config.js` = رابط الـ Web app |
 
 ## لينكات
+- **الموقع (المجاني، شغال):** https://doditstudio.netlify.app — Netlify بيعمل نشر تلقائي من فرع `main`
+- **الـ Web app بتاع الشيت:** متسجّل في `website/public/js/config.js`
 - **الريبو:** https://github.com/doditstudio99-cmyk/wedad
 - **نسخة تجريبية للعرض** (Claude artifact، خاصة. للمشاركة: زرار Share في الصفحة): https://claude.ai/artifact/9Fc8CCVYQFJksS2Y58c2Fi
 - **نشر المدفوعة على Render:** https://render.com/deploy?repo=https://github.com/doditstudio99-cmyk/wedad
@@ -28,7 +30,7 @@
 - [x] الموقع والحجز ولوحة التحكم (المدفوعة)، واتجربوا في المتصفح.
 - [x] ملف نشر Render (`render.yaml`).
 - [x] النسخة المجانية: Apps Script، والواجهة بتشتغل مع الاتنين، و`netlify.toml`. اتجربت على Sheets وهمي ومتصفح.
-- [ ] **المجانية:** صاحب الاستوديو يركّب الشيت ويبعت رابط الـ Web app، وبعدين نحطه في `config.js` ونربط Netlify (الخطوات في `google-sheets/README.md`).
+- [x] **المجانية شغالة:** الشيت متركب، والـ Web app متاح لأي حد (Anyone)، والموقع على https://doditstudio.netlify.app (Visitor access = Public). الموقع اتجرب عن بُعد: الخدمات والمواعيد بتتقري من الشيت. الحجز الحقيقي متجربش من هنا، صاحب الاستوديو هيجربه.
 - [ ] **المدفوعة:** الكارت اللي اتجرب نوعه **ميزة** (بيشتغل جوه مصر بس) واترفض. محتاج كارت **Visa أو Mastercard** مفعّل عليه الدفع الدولي (ممكن فيزا افتراضية من محفظة إلكترونية).
 - [ ] البيانات الحقيقية: رقم الواتساب (حالياً `201000000000` مؤقت)، والعنوان، والأسعار، ولينكات السوشيال، وصور وفيديوهات الأعمال، وأرقام "من نحن" (300+ / 80+ / 4 مكتوبة في `index.html`).
 
