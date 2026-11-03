@@ -78,6 +78,19 @@
     applyLang();
   });
 
+  /* ---------------- light / dark ---------------- */
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#110e0d' : '#FF6B00');
+  }
+  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  $('#themeBtn').addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dodit_theme', next); } catch { /* storage unavailable */ }
+  });
+
   /* ---------------- rendering ---------------- */
   function render() {
     const s = site.settings;
