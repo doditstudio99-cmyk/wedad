@@ -257,8 +257,18 @@
     $('#toStep2').disabled = false;
   }
 
+  const PACKAGE_ID = '__package__';
+  const packageBooking = () => !!(site.features && site.features.packageBooking);
+
   function renderServiceOptions() {
     $('#svcOptions').replaceChildren(
+      ...(packageBooking()
+        ? [h('button', {
+            type: 'button', class: 'svc-opt pkg-opt' + (booking.serviceId === PACKAGE_ID ? ' selected' : ''), onclick: () => selectService(PACKAGE_ID),
+          },
+            h('span', { class: 'svc-ico', text: '📦' }),
+            h('span', {}, h('b', { text: t('booking.pkgOption') }), h('small', { text: t('booking.pkgOptionSub') })))]
+        : []),
       ...site.services.map((svc) =>
         h('button', {
           type: 'button', class: 'svc-opt' + (booking.serviceId === svc.id ? ' selected' : ''), onclick: () => selectService(svc.id),
@@ -362,6 +372,7 @@
   }
 
   function serviceTitle() {
+    if (booking.serviceId === PACKAGE_ID) return t('booking.fromPackage');
     const svc = site.services.find((s) => s.id === booking.serviceId);
     return svc ? tr(svc.title) : '';
   }
@@ -371,7 +382,8 @@
     $('#summary').replaceChildren(
       h('div', {}, h('span', { text: t('booking.service') }), serviceTitle()),
       h('div', {}, h('span', { text: t('booking.date') }), fmtDate(booking.date)),
-      h('div', {}, h('span', { text: t('booking.time') }), fmtTime(booking.time))
+      h('div', {}, h('span', { text: t('booking.time') }), fmtTime(booking.time)),
+      booking.serviceId === PACKAGE_ID ? h('p', { class: 'summary-hint', text: '📦 ' + t('booking.pkgHint') }) : ''
     );
   }
 
@@ -391,7 +403,8 @@
     btn.disabled = true;
     btn.textContent = t('booking.sending');
     try {
-      const res = await api.book({ ...data, serviceId: booking.serviceId, date: booking.date, time: booking.time });
+      const usePackage = booking.serviceId === PACKAGE_ID;
+      const res = await api.book({ ...data, serviceId: usePackage ? '' : booking.serviceId, usePackage, date: booking.date, time: booking.time });
       const out = await res.json().catch(() => ({ error: 'generic' }));
       if (!res.ok || out.error) {
         err.textContent = t('err.' + out.error) !== 'err.' + out.error ? t('err.' + out.error) : t('err.generic');
@@ -403,7 +416,7 @@
         return;
       }
       const vars = { ref: out.ref, date: fmtDate(out.date), time: fmtTime(out.time), service: serviceTitle(), name: data.name };
-      $('#doneText').textContent = fmt(t('booking.doneText'), vars);
+      $('#doneText').textContent = fmt(t('booking.doneText'), vars) + (out.package ? ' ' + fmt(t('booking.donePkg'), out.package) : '');
       $('#doneWa').href = waLink(fmt(t('booking.waMsg'), vars));
       form.reset();
       showStep(4);
