@@ -234,6 +234,8 @@ app.get('/api/site', (req, res) => {
       days: db.schedule.days,
       closedDates: db.schedule.closedDates,
     },
+    // Lets the booking form offer "book from my package" (the Google Sheets back-end doesn't support it)
+    features: { packageBooking: true },
   });
 });
 
@@ -253,12 +255,15 @@ app.post('/api/bookings', (req, res) => {
   const phone = str(b.phone, 30);
   const notes = str(b.notes, 1000);
   const category = str(b.category, 50);
-  const service = db.services.find((s) => s.id === b.serviceId);
+  const usePackage = b.usePackage === true;
+  const service = usePackage ? null : db.services.find((s) => s.id === b.serviceId);
 
   if (!isDate(date) || !isTime(time)) return res.status(400).json({ error: 'invalid_slot' });
   if (name.length < 2) return res.status(400).json({ error: 'invalid_name' });
   if (!/^\+?[\d\s-]{7,20}$/.test(phone)) return res.status(400).json({ error: 'invalid_phone' });
-  if (!service) return res.status(400).json({ error: 'invalid_service' });
+  if (!usePackage && !service) return res.status(400).json({ error: 'invalid_service' });
+  const pkg = usePackage ? activePackageFor(phone) : null;
+  if (usePackage && !pkg) return res.status(400).json({ error: 'no_active_package' });
 
   // Checking and writing happen in the same synchronous tick, so two people can't take the same slot.
   const slot = slotsFor(date).slots.find((s) => s.time === time);
@@ -274,15 +279,23 @@ app.post('/api/bookings', (req, res) => {
     phone,
     notes,
     category,
-    serviceId: service.id,
-    serviceTitle: service.title,
+    serviceId: service ? service.id : '',
+    serviceTitle: service ? service.title : { ar: 'من رصيد الباقة: ' + (pkg.title || pkg.unit), en: 'From package: ' + (pkg.title || pkg.unit) },
+    packageId: pkg ? pkg.id : '',
     status: 'pending',
     source: 'website',
     createdAt: new Date().toISOString(),
   };
   db.bookings.push(booking);
   saveDb();
-  res.status(201).json({ ok: true, ref: booking.ref, date, time });
+  res.status(201).json({
+    ok: true,
+    ref: booking.ref,
+    date,
+    time,
+    // Only what the client already knows about their own package
+    package: pkg ? { title: pkg.title, unit: pkg.unit, total: pkg.total, remaining: pkg.total - usedOf(pkg) } : null,
+  });
 });
 
 /* ---------- admin auth ---------- */
@@ -394,17 +407,19 @@ app.post('/api/admin/bookings', (req, res) => {
   if (db.bookings.some((x) => x.date === date && x.time === time && x.status !== 'cancelled'))
     return res.status(409).json({ error: 'slot_taken' });
   const service = db.services.find((s) => s.id === b.serviceId);
+  const pkg = b.packageId ? findPackage(str(b.packageId, 40)) : null;
   const booking = {
     id: newId(),
     ref: 'DS-' + crypto.randomBytes(3).toString('hex').toUpperCase(),
     date,
     time,
-    name: str(b.name, 100) || '—',
-    phone: str(b.phone, 30),
+    name: str(b.name, 100) || (pkg ? pkg.name : '—'),
+    phone: str(b.phone, 30) || (pkg ? pkg.phone : ''),
     notes: str(b.notes, 1000),
     category: str(b.category, 50),
     serviceId: service ? service.id : '',
-    serviceTitle: service ? service.title : { ar: '', en: '' },
+    serviceTitle: service ? service.title : pkg ? { ar: 'من رصيد الباقة: ' + (pkg.title || pkg.unit), en: 'From package: ' + (pkg.title || pkg.unit) } : { ar: '', en: '' },
+    packageId: pkg ? pkg.id : '',
     status: 'confirmed',
     source: 'admin',
     createdAt: new Date().toISOString(),
@@ -442,6 +457,22 @@ app.delete('/api/admin/bookings/:id', (req, res) => {
 const usedOf = (p) => p.usage.reduce((sum, u) => sum + u.qty, 0);
 const withTotals = (p) => ({ ...p, used: usedOf(p), remaining: p.total - usedOf(p) });
 const findPackage = (id) => db.clientPackages.find((x) => x.id === id);
+
+/** 01012345678, +20 101 234 5678 and 00201012345678 all become 01012345678 */
+function normPhone(phone) {
+  let d = String(phone || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('20') && d.length === 12) d = '0' + d.slice(2);
+  return d;
+}
+/** The client's package that still has balance and hasn't expired (oldest first, so it gets used up first) */
+function activePackageFor(phone) {
+  const today = nowInTz(db.settings.timezone || 'Africa/Cairo').date;
+  const n = normPhone(phone);
+  return db.clientPackages
+    .filter((p) => normPhone(p.phone) === n && p.total - usedOf(p) > 0 && !(p.expiryDate && p.expiryDate < today))
+    .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''))[0] || null;
+}
 
 function cleanPackage(b) {
   return {

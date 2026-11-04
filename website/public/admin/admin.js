@@ -159,12 +159,23 @@
               h('span', { text: '#' + b.ref }),
               h('span', { text: b.source === 'admin' ? '✍️ يدوي' : '🌐 من الموقع' })
             ),
+            b.packageId ? (() => {
+              const p = packageById(b.packageId);
+              return h('div', { class: 'pkg-tag', text: p ? `📦 من رصيد الباقة (${p.title || p.unit}): متبقي ${p.remaining} من ${p.total} ${p.unit}` : '📦 من رصيد باقة (اتمسحت)' });
+            })() : null,
             b.notes ? h('div', { class: 'notes', text: b.notes }) : null
           ),
           h('div', { class: 'actions' },
             h('select', {
               onchange: async (e) => {
-                try { await api('/bookings/' + b.id, { method: 'PATCH', body: { status: e.target.value } }); toast('تم التحديث'); await reload(); }
+                try {
+                  await api('/bookings/' + b.id, { method: 'PATCH', body: { status: e.target.value } });
+                  toast('تم التحديث');
+                  await reload();
+                  // Filmed a package booking → record what was used right away
+                  const p = e.target.value === 'done' && b.packageId ? packageById(b.packageId) : null;
+                  if (p && p.remaining > 0) logUsage(p, { date: b.date, note: 'حجز ' + b.ref });
+                }
                 catch (err) { toast(err.message, true); e.target.value = b.status; }
               },
             }, STATUS.map(([v, l]) => h('option', { value: v, selected: v === b.status, text: l }))),
@@ -190,6 +201,18 @@
         h('label', {}, 'الساعة', h('select', { name: 'time', required: true, id: 'slotSelect' }))
       ),
       h('label', {}, 'الخدمة', h('select', { name: 'serviceId' }, h('option', { value: '', text: '—' }), data.services.map((s) => h('option', { value: s.id, text: s.title.ar })))),
+      h('label', {}, 'من رصيد باقة عميل؟ (اختياري)', h('select', {
+        name: 'packageId',
+        onchange: (e) => {
+          // fill the client's name and phone from the package
+          const p = packageById(e.target.value);
+          const f = e.target.form;
+          if (p && !f.elements.name.value) f.elements.name.value = p.name;
+          if (p && !f.elements.phone.value) f.elements.phone.value = p.phone;
+        },
+      }, h('option', { value: '', text: '— لأ —' }),
+        (data.clientPackages || []).map((x) => packageById(x.id)).filter((p) => p.remaining > 0)
+          .map((p) => h('option', { value: p.id, text: `${p.name} — ${p.title || p.unit} (متبقي ${p.remaining})` })))),
       h('div', { class: 'grid2' },
         h('label', {}, 'الاسم', h('input', { name: 'name', placeholder: 'مثلاً: د. أحمد — أو "مقفول"' })),
         h('label', {}, 'الموبايل', h('input', { name: 'phone', dir: 'ltr' }))
@@ -224,6 +247,12 @@
   }
 
   /* ---------------- client packages ---------------- */
+  const packageById = (id) => {
+    const p = (data.clientPackages || []).find((x) => x.id === id);
+    if (!p) return null;
+    const used = p.usage.reduce((s, u) => s + u.qty, 0);
+    return { ...p, used, remaining: p.total - used };
+  };
   // Egyptian local numbers (01…) → international (201…) for wa.me links
   const waNumber = (phone) => {
     let d = String(phone || '').replace(/\D/g, '');
@@ -289,6 +318,7 @@
     box.replaceChildren(
       ...list.map((p) => {
         const pct = Math.round((p.used / p.total) * 100);
+        const upcoming = data.bookings.filter((b) => b.packageId === p.id && b.date >= today && !['cancelled', 'done'].includes(b.status));
         const expired = p.expiryDate && p.expiryDate < today;
         const history = openHistory.has(p.id);
         return h('div', { class: 'card pkg' + (p.remaining <= 0 ? ' dim' : '') },
@@ -301,7 +331,8 @@
               h('a', { class: 'wa', href: `https://wa.me/${waNumber(p.phone)}`, target: '_blank', dir: 'ltr', text: '💬 ' + p.phone }),
               p.title ? h('span', { text: '📦 ' + p.title }) : null,
               h('span', { text: `🎬 اتصور ${p.used} ${p.unit}` }),
-              p.expiryDate ? h('span', { text: '⏳ لحد ' + p.expiryDate }) : null
+              p.expiryDate ? h('span', { text: '⏳ لحد ' + p.expiryDate }) : null,
+              upcoming.length ? h('span', { class: 'pkg-next', text: `📅 حجز جاي: ${fmtDate(upcoming.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0].date)}${upcoming.length > 1 ? ` (+${upcoming.length - 1})` : ''}` }) : null
             ),
             h('div', { class: 'bar', title: pct + '%' }, h('span', { style: `width:${pct}%` })),
             p.notes ? h('div', { class: 'notes', text: p.notes }) : null,
@@ -337,15 +368,15 @@
     );
   }
 
-  function logUsage(p) {
+  function logUsage(p, defaults = {}) {
     const qty = h('input', { type: 'number', name: 'qty', min: 1, max: p.remaining, value: 1, required: true });
     openModal(`تسجيل استهلاك — ${p.name}`, [
       h('p', { class: 'muted-note', text: `${p.title || 'الباقة'}: اتصور ${p.used} من ${p.total} — متبقي ${p.remaining} ${p.unit}` }),
       h('div', { class: 'grid2' },
         h('label', {}, `اتصور كام ${p.unit}؟`, qty),
-        h('label', {}, 'اليوم', h('input', { type: 'date', name: 'date', value: todayStr() }))
+        h('label', {}, 'اليوم', h('input', { type: 'date', name: 'date', value: defaults.date || todayStr() }))
       ),
-      h('label', {}, 'ملاحظة (اختياري)', h('input', { name: 'note', placeholder: 'مثلاً: ريلز عن تبييض الأسنان' })),
+      h('label', {}, 'ملاحظة (اختياري)', h('input', { name: 'note', placeholder: 'مثلاً: ريلز عن تبييض الأسنان', value: defaults.note || '' })),
     ], async (form) => {
       const v = Object.fromEntries(new FormData(form));
       const out = await api(`/client-packages/${p.id}/usage`, { method: 'POST', body: v });

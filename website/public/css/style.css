@@ -357,6 +357,8 @@ body, .header, .booking-card, .svc, .aud-card { transition: background-color 0.3
 .lg.booked { background: var(--danger-bg); border-color: var(--danger-line); }
 
 .summary { background: var(--orange-soft); border-radius: 16px; padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 10px 28px; margin-bottom: 22px; font-weight: 700; }
+.summary-hint { flex-basis: 100%; margin: 0; color: var(--orange); font-weight: 700; }
+.svc-opt.pkg-opt { border-style: dashed; }
 .summary span { color: var(--muted); font-weight: 600; margin-inline-end: 6px; }
 .bform { display: grid; gap: 16px; }
 .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
