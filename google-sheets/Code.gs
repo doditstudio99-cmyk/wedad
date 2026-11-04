@@ -23,6 +23,7 @@ const SH = {
   schedule: 'مواعيد العمل',
   closed: 'أيام الإجازة',
   bookings: 'الحجوزات',
+  packages: 'باقات العملاء',
 };
 const CATS = { 'دكاترة': 'doctors', 'محامين': 'lawyers', 'مدرسين': 'teachers', 'عقارات': 'realestate', 'أصحاب أعمال': 'business', 'أخرى': 'other' };
 const CAT_AR = Object.keys(CATS).reduce((o, k) => ((o[CATS[k]] = k), o), {});
@@ -713,12 +714,42 @@ function setup() {
   bk.getRange('B:C').setNumberFormat('@');
   bk.getRange('E:E').setNumberFormat('@');
   dropdown(bk, 9, STATUS);
-  const rules = bk.getConditionalFormatRules().concat([
+  const rules = ([
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('جديد').setBackground('#fff4d6').setRanges([bk.getRange('I2:I')]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('مؤكد').setBackground('#dcf5e6').setRanges([bk.getRange('I2:I')]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('ملغي').setBackground('#fbe4e2').setRanges([bk.getRange('A2:J')]).build(),
   ]);
   bk.setConditionalFormatRules(rules);
+
+  // Client packages: total vs. used, remaining is calculated and a WhatsApp link is built for each row
+  const pk = make(SH.packages,
+    ['اسم العميل', 'الموبايل', 'الباقة', 'الوحدة', 'العدد الكلي', 'اتصور كام لحد دلوقتي', 'المتبقي', 'ملاحظات', 'ابعت الرصيد على واتساب'],
+    [], [160, 140, 180, 90, 100, 150, 90, 220, 190]);
+  pk.getRange('B:B').setNumberFormat('@');
+  const ROWS = 300;
+  const formulas = [];
+  for (let r = 2; r <= ROWS + 1; r++) {
+    const digits = 'REGEXREPLACE(TO_TEXT(B' + r + '),"\\D","")';
+    const nl = '&CHAR(10)&';
+    const studio = 'IFERROR(VLOOKUP("studioName",\'' + SH.settings + '\'!A:C,3,FALSE),"Dodit Studio")';
+    const msg = '"أهلاً "&A' + r + '&" 👋"' + nl + '"معاك "&' + studio + '&"."' + '&CHAR(10)&CHAR(10)&' +
+      '"📦 باقتك: "&C' + r + nl + '"🎬 المستهلك: "&N(F' + r + ')&" من "&E' + r + nl +
+      '"✨ المتبقي: "&G' + r + '&" "&D' + r + '&CHAR(10)&CHAR(10)&' + '"مستنيينك في الجلسة الجاية 🧡"';
+    formulas.push([
+      '=IF(E' + r + '="","",E' + r + '-N(F' + r + '))',
+      '=IF(OR(A' + r + '="",B' + r + '=""),"",HYPERLINK("https://wa.me/"&IF(LEFT(' + digits + ',1)="0","2","")&' + digits +
+        '&"?text="&ENCODEURL(' + msg + '),"📲 ابعت الرصيد"))',
+    ]);
+  }
+  pk.getRange(2, 7, ROWS, 1).setFormulas(formulas.map((f) => [f[0]]));
+  pk.getRange(2, 9, ROWS, 1).setFormulas(formulas.map((f) => [f[1]]));
+  pk.getRange(2, 4, ROWS, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['ريل', 'فيديو', 'فيديو سمارت بورد', 'جلسة'], true).setAllowInvalid(true).build()
+  );
+  pk.getRange('G2:G').setFontWeight('bold').setFontColor('#ff6b00');
+  pk.setConditionalFormatRules([
+    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND($E2<>"",$G2<=0)').setBackground('#eeeeee').setFontColor('#999999').setRanges([pk.getRange('A2:I')]).build(),
+  ]);
 
   // Remove the default empty sheet
   book.getSheets().forEach((sh) => {

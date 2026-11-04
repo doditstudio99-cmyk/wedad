@@ -29,6 +29,12 @@
     file_too_large: 'الملف أكبر من المسموح (200MB)',
     unsupported_file: 'نوع الملف مش مدعوم (صور JPG/PNG/WEBP أو فيديو MP4/MOV/WEBM)',
     too_many_requests: 'محاولات كتير، استنى شوية وجرب تاني',
+    invalid_name: 'اكتب اسم العميل',
+    invalid_phone: 'رقم الموبايل مش صحيح',
+    invalid_total: 'العدد الكلي لازم يكون رقم أكبر من صفر',
+    invalid_qty: 'اكتب عدد صحيح أكبر من صفر',
+    exceeds_remaining: 'العدد أكبر من المتبقي في الباقة',
+    total_below_used: 'العدد الكلي مينفعش يبقى أقل من اللي اتصور فعلاً',
   };
 
   let data = null;
@@ -105,6 +111,7 @@
     renderSchedule();
     for (const name of Object.keys(COLLECTIONS)) renderCollection(name);
     renderSettings();
+    renderPackages();
   }
 
   /* ---------------- bookings ---------------- */
@@ -216,6 +223,167 @@
     }
   }
 
+  /* ---------------- client packages ---------------- */
+  // Egyptian local numbers (01…) → international (201…) for wa.me links
+  const waNumber = (phone) => {
+    let d = String(phone || '').replace(/\D/g, '');
+    if (d.startsWith('00')) d = d.slice(2);
+    if (d.startsWith('0')) d = '2' + d;
+    return d;
+  };
+
+  /** Fills the message template; lines about "this session" are dropped when nothing new was filmed */
+  function packageMessage(p, qty, date) {
+    const vars = {
+      'الاسم': p.name, 'الاستوديو': data.settings.studioName || 'Dodit Studio', 'الباقة': p.title || '—',
+      'اللي_اتصور': qty || 0, 'المستهلك': p.used, 'الكلي': p.total, 'المتبقي': p.remaining, 'الوحدة': p.unit,
+      'التاريخ': date ? fmtDate(date) : '',
+    };
+    let lines = (data.settings.packageMessage || '').split('\n');
+    if (!qty) lines = lines.filter((l) => !l.includes('{اللي_اتصور}'));
+    return lines.join('\n').replace(/\{([^{}]+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+  }
+
+  function sendWhatsAppModal(p, qty, date, title) {
+    const text = h('textarea', { rows: 10, id: 'waText' });
+    text.value = packageMessage(p, qty, date);
+    const link = h('a', { class: 'btn wa-btn', target: '_blank', rel: 'noopener', text: '📲 ابعت على واتساب' });
+    const sync = () => (link.href = `https://wa.me/${waNumber(p.phone)}?text=${encodeURIComponent(text.value)}`);
+    text.addEventListener('input', sync);
+    sync();
+    openModal(title, [
+      h('p', { class: 'muted-note', text: `الرسالة دي هتتبعت لـ ${p.name} على ${p.phone}. تقدر تعدّل فيها قبل الإرسال.` }),
+      text,
+      link,
+    ], async () => {}, 'تم');
+  }
+
+  let pkgFilter = 'active';
+  $$('#pkgFilter button').forEach((b) =>
+    b.addEventListener('click', () => {
+      pkgFilter = b.dataset.f;
+      $$('#pkgFilter button').forEach((x) => x.classList.toggle('active', x === b));
+      renderPackages();
+    })
+  );
+  $('#pkgSearch').addEventListener('input', () => renderPackages());
+  $('#addPackageBtn').addEventListener('click', () => editPackage());
+  const openHistory = new Set();
+
+  function renderPackages() {
+    const today = todayStr();
+    const q = $('#pkgSearch').value.trim().toLowerCase();
+    let list = (data.clientPackages || []).map((p) => {
+      const used = p.usage.reduce((s, u) => s + u.qty, 0);
+      return { ...p, used, remaining: p.total - used };
+    });
+    if (pkgFilter === 'active') list = list.filter((p) => p.remaining > 0);
+    if (pkgFilter === 'done') list = list.filter((p) => p.remaining <= 0);
+    if (q) list = list.filter((p) => [p.name, p.phone, p.title].join(' ').toLowerCase().includes(q));
+    list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+    const box = $('#packagesList');
+    if (!list.length) {
+      return box.replaceChildren(h('div', { class: 'empty', text: (data.clientPackages || []).length ? 'مفيش باقات هنا.' : 'لسه مفيش باقات. اضغط "+ باقة جديدة" وسجّل أول عميل.' }));
+    }
+    box.replaceChildren(
+      ...list.map((p) => {
+        const pct = Math.round((p.used / p.total) * 100);
+        const expired = p.expiryDate && p.expiryDate < today;
+        const history = openHistory.has(p.id);
+        return h('div', { class: 'card pkg' + (p.remaining <= 0 ? ' dim' : '') },
+          h('div', { class: 'pkg-count' }, h('b', { text: String(p.remaining) }), h('small', { text: `متبقي من ${p.total}` })),
+          h('div', { class: 'main-info' },
+            h('b', { text: p.name }), ' ',
+            p.remaining <= 0 ? h('span', { class: 'badge st-done', text: 'خلصت' }) : null,
+            expired ? h('span', { class: 'badge st-cancelled', text: 'منتهية' }) : null,
+            h('div', { class: 'meta' },
+              h('a', { class: 'wa', href: `https://wa.me/${waNumber(p.phone)}`, target: '_blank', dir: 'ltr', text: '💬 ' + p.phone }),
+              p.title ? h('span', { text: '📦 ' + p.title }) : null,
+              h('span', { text: `🎬 اتصور ${p.used} ${p.unit}` }),
+              p.expiryDate ? h('span', { text: '⏳ لحد ' + p.expiryDate }) : null
+            ),
+            h('div', { class: 'bar', title: pct + '%' }, h('span', { style: `width:${pct}%` })),
+            p.notes ? h('div', { class: 'notes', text: p.notes }) : null,
+            history
+              ? h('div', { class: 'history' },
+                  p.usage.length
+                    ? [...p.usage].reverse().map((u) =>
+                        h('div', { class: 'hrow' },
+                          h('span', { text: `${fmtDate(u.date)} — ${u.qty} ${p.unit}${u.note ? ' · ' + u.note : ''}` }),
+                          h('button', { class: 'btn danger sm', type: 'button', text: 'مسح', onclick: async () => {
+                            if (!confirm('مسح التسجيل ده؟ الرقم هيرجع للمتبقي.')) return;
+                            await api(`/client-packages/${p.id}/usage/${u.id}`, { method: 'DELETE' });
+                            toast('اتمسح');
+                            await reload();
+                          } })))
+                    : h('small', { class: 'muted-note', text: 'مفيش استهلاك متسجل لسه.' }))
+              : null
+          ),
+          h('div', { class: 'actions' },
+            h('button', { class: 'btn primary sm', text: '➕ تسجيل استهلاك', disabled: p.remaining <= 0, onclick: () => logUsage(p) }),
+            h('button', { class: 'btn ghost sm', text: '📲 ابعت الرصيد', onclick: () => sendWhatsAppModal(p, 0, null, 'رصيد ' + p.name) }),
+            h('button', { class: 'btn ghost sm', text: history ? 'إخفاء السجل' : '🧾 السجل', onclick: () => { history ? openHistory.delete(p.id) : openHistory.add(p.id); renderPackages(); } }),
+            h('button', { class: 'btn ghost sm', text: '✏️', title: 'تعديل', onclick: () => editPackage(p) }),
+            h('button', { class: 'btn danger sm', text: 'حذف', onclick: async () => {
+              if (!confirm(`حذف باقة ${p.name} نهائياً بكل سجلها؟`)) return;
+              await api('/client-packages/' + p.id, { method: 'DELETE' });
+              toast('اتحذفت');
+              await reload();
+            } })
+          )
+        );
+      })
+    );
+  }
+
+  function logUsage(p) {
+    const qty = h('input', { type: 'number', name: 'qty', min: 1, max: p.remaining, value: 1, required: true });
+    openModal(`تسجيل استهلاك — ${p.name}`, [
+      h('p', { class: 'muted-note', text: `${p.title || 'الباقة'}: اتصور ${p.used} من ${p.total} — متبقي ${p.remaining} ${p.unit}` }),
+      h('div', { class: 'grid2' },
+        h('label', {}, `اتصور كام ${p.unit}؟`, qty),
+        h('label', {}, 'اليوم', h('input', { type: 'date', name: 'date', value: todayStr() }))
+      ),
+      h('label', {}, 'ملاحظة (اختياري)', h('input', { name: 'note', placeholder: 'مثلاً: ريلز عن تبييض الأسنان' })),
+    ], async (form) => {
+      const v = Object.fromEntries(new FormData(form));
+      const out = await api(`/client-packages/${p.id}/usage`, { method: 'POST', body: v });
+      await reload();
+      // show the ready-to-send WhatsApp message right away
+      setTimeout(() => sendWhatsAppModal(out.package, out.entry.qty, out.entry.date, '✓ اتسجل — ابعت للعميل'), 0);
+    }, 'تسجيل');
+  }
+
+  function editPackage(p) {
+    const services = data.services.map((s) => s.title.ar);
+    const body = [
+      h('div', { class: 'grid2' },
+        h('label', {}, 'اسم العميل', h('input', { name: 'name', required: true, value: p ? p.name : '' })),
+        h('label', {}, 'الموبايل (واتساب)', h('input', { name: 'phone', required: true, dir: 'ltr', placeholder: '01012345678', value: p ? p.phone : '' }))
+      ),
+      h('label', {}, 'الباقة', h('input', { name: 'title', list: 'pkgTitles', placeholder: 'مثلاً: باقة الريلز', value: p ? p.title : '' }),
+        h('datalist', { id: 'pkgTitles' }, services.map((s) => h('option', { value: s })))),
+      h('div', { class: 'grid2' },
+        h('label', {}, 'العدد الكلي', h('input', { type: 'number', name: 'total', min: 1, required: true, value: p ? p.total : 10 })),
+        h('label', {}, 'الوحدة', h('input', { name: 'unit', list: 'pkgUnits', value: p ? p.unit : 'ريل' }),
+          h('datalist', { id: 'pkgUnits' }, ['ريل', 'فيديو', 'فيديو سمارت بورد', 'جلسة'].map((u) => h('option', { value: u }))))
+      ),
+      h('div', { class: 'grid2' },
+        h('label', {}, 'تاريخ البداية', h('input', { type: 'date', name: 'startDate', value: p ? p.startDate : todayStr() })),
+        h('label', {}, 'تنتهي يوم (اختياري)', h('input', { type: 'date', name: 'expiryDate', value: p ? p.expiryDate : '' }))
+      ),
+      h('label', {}, 'ملاحظات', h('textarea', { name: 'notes', rows: 2 }, p ? p.notes : '')),
+    ];
+    openModal(p ? 'تعديل الباقة' : 'باقة جديدة لعميل', body, async (form) => {
+      const v = Object.fromEntries(new FormData(form));
+      if (p) await api('/client-packages/' + p.id, { method: 'PUT', body: v });
+      else await api('/client-packages', { method: 'POST', body: v });
+      toast('اتحفظت ✓');
+      await reload();
+    });
+  }
+
   /* ---------------- schedule ---------------- */
   let closedDates = [];
   function renderSchedule() {
@@ -314,6 +482,11 @@
         return h('label', {}, f.label, f.hint ? h('small', { text: f.hint }) : null,
           h('div', { class: 'upload' }, input, h('button', { type: 'button', class: 'btn ghost sm', text: '⬆ رفع ملف', onclick: () => file.click() }), status, file));
       }
+      case 'textarea': {
+        const el = h('textarea', { name: f.key, rows: f.rows || 6 });
+        el.value = value ?? '';
+        return h('label', {}, f.label, f.hint ? h('small', { text: f.hint }) : null, el);
+      }
       default: {
         const el = h('input', { type: f.type || 'text', name: f.key, dir: f.dir || null, placeholder: f.placeholder || null, min: f.min, max: f.max });
         el.value = value ?? '';
@@ -344,10 +517,11 @@
 
   /* ---------------- modal ---------------- */
   let modalSubmit = null;
-  function openModal(title, body, onSubmit) {
+  function openModal(title, body, onSubmit, submitLabel) {
     $('#modalTitle').textContent = title;
     $('#modalBody').replaceChildren(...body);
     $('#modalError').textContent = '';
+    $('#modalForm button[type=submit]').textContent = submitLabel || 'حفظ';
     modalSubmit = onSubmit;
     $('#modal').hidden = false;
   }
@@ -480,6 +654,9 @@
     { key: 'mapQuery', label: 'مكان الخريطة', hint: 'اكتب العنوان بالتفصيل، أو اسم المكان على جوجل ماب، أو الإحداثيات (مثلاً 30.0444,31.2357)' },
     { key: 'workingHoursNote', label: 'نص أيام العمل', type: 'bi' },
     { key: 'currency', label: 'العملة', type: 'bi' },
+    { section: 'رسالة واتساب الباقات' },
+    { key: 'packageMessage', label: 'الرسالة اللي بتتبعت للعميل بعد تسجيل الاستهلاك', type: 'textarea', rows: 9,
+      hint: 'الكلمات بين { } بتتبدل لوحدها: {الاسم} {الاستوديو} {الباقة} {اللي_اتصور} {المستهلك} {الكلي} {المتبقي} {الوحدة} {التاريخ}' },
     { section: 'السوشيال ميديا (سيب الخانة فاضية لو مش عايزها تظهر)' },
     { key: 'social.instagram', label: 'Instagram', dir: 'ltr', placeholder: 'https://instagram.com/…' },
     { key: 'social.facebook', label: 'Facebook', dir: 'ltr', placeholder: 'https://facebook.com/…' },
