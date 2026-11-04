@@ -65,6 +65,23 @@ function saveDb() {
   const tmp = DB_FILE + '.tmp';
   fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
   fs.renameSync(tmp, DB_FILE);
+  dailyBackup();
+}
+
+/* Automatic safety copies: one per day in DATA_DIR/backups, the last 14 days are kept */
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
+const KEEP_DAILY = 14;
+function dailyBackup() {
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const day = new Date().toISOString().slice(0, 10);
+    const file = path.join(BACKUP_DIR, `daily-${day}.json`);
+    if (!fs.existsSync(file)) fs.copyFileSync(DB_FILE, file);
+    const daily = fs.readdirSync(BACKUP_DIR).filter((f) => /^daily-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+    for (const old of daily.slice(0, Math.max(0, daily.length - KEEP_DAILY))) fs.rmSync(path.join(BACKUP_DIR, old), { force: true });
+  } catch (err) {
+    console.warn('daily backup failed', err.message);
+  }
 }
 
 loadDb();
@@ -206,7 +223,8 @@ setInterval(() => hits.clear(), 6 * 60 * 60 * 1000).unref();
 const app = express();
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
-app.use(express.json({ limit: '1mb' }));
+// A restored backup can be large; everything else stays small
+app.use((req, res, next) => express.json({ limit: req.path === '/api/admin/restore' ? '25mb' : '1mb' })(req, res, next));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -335,6 +353,76 @@ app.post('/api/admin/password', (req, res) => {
 app.get('/api/admin/data', (req, res) => {
   const { auth, ...rest } = db;
   res.json(rest);
+});
+
+/* ---------- admin: backup & export ---------- */
+const today = () => nowInTz(db.settings.timezone || 'Africa/Cairo').date;
+const download = (res, name, type) => {
+  res.setHeader('Content-Type', type);
+  res.setHeader('Content-Disposition', `attachment; filename="${name}"`);
+  res.setHeader('Cache-Control', 'no-store');
+};
+
+app.get('/api/admin/backup', (req, res) => {
+  const { auth, ...rest } = db;
+  download(res, `dodit-backup-${today()}.json`, 'application/json; charset=utf-8');
+  res.send(JSON.stringify({ app: 'dodit-studio', version: 1, exportedAt: new Date().toISOString(), data: rest }, null, 2));
+});
+
+/** CSV that opens correctly in Excel (UTF-8 BOM) and can't smuggle in spreadsheet formulas */
+function csv(rows) {
+  const cell = (v) => {
+    let s = v === null || v === undefined ? '' : String(v);
+    if (/^[=@\t\r]/.test(s) || (/^[+-]/.test(s) && !/^[+-][\d\s-]*$/.test(s))) s = "'" + s;
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return '\ufeff' + rows.map((r) => r.map(cell).join(',')).join('\r\n');
+}
+const STATUS_AR = { pending: 'في الانتظار', confirmed: 'مؤكد', done: 'تم التصوير', cancelled: 'ملغي' };
+const CAT_AR = { doctors: 'دكاترة', lawyers: 'محامين', teachers: 'مدرسين', realestate: 'عقارات', business: 'أصحاب أعمال', other: 'أخرى' };
+// An invisible left-to-right mark keeps Excel from turning 0101… into a number (and dropping the 0)
+const asText = (v) => (v ? '\u200E' + v : '');
+
+app.get('/api/admin/export/bookings.csv', (req, res) => {
+  const rows = [['رقم الحجز', 'اليوم', 'الساعة', 'الاسم', 'الموبايل', 'الخدمة', 'من باقة', 'المجال', 'الحالة', 'ملاحظات', 'المصدر', 'وقت الطلب']];
+  for (const b of [...db.bookings].sort((a, c) => (a.date + a.time).localeCompare(c.date + c.time))) {
+    const p = b.packageId ? findPackage(b.packageId) : null;
+    rows.push([b.ref, b.date, b.time, b.name, asText(b.phone), (b.serviceTitle && b.serviceTitle.ar) || '', p ? p.title || p.unit : '', CAT_AR[b.category] || b.category, STATUS_AR[b.status] || b.status, b.notes, b.source === 'admin' ? 'يدوي' : 'الموقع', b.createdAt]);
+  }
+  download(res, `dodit-bookings-${today()}.csv`, 'text/csv; charset=utf-8');
+  res.send(csv(rows));
+});
+
+app.get('/api/admin/export/packages.csv', (req, res) => {
+  const rows = [['اسم العميل', 'الموبايل', 'الباقة', 'الوحدة', 'العدد الكلي', 'المستهلك', 'المتبقي', 'تاريخ البداية', 'تنتهي يوم', 'ملاحظات', 'سجل الاستهلاك']];
+  for (const p of db.clientPackages) {
+    const used = p.usage.reduce((s, u) => s + u.qty, 0);
+    const log = p.usage.map((u) => `${u.date}: ${u.qty}${u.note ? ' (' + u.note + ')' : ''}`).join(' | ');
+    rows.push([p.name, asText(p.phone), p.title, p.unit, p.total, used, p.total - used, p.startDate, p.expiryDate, p.notes, log]);
+  }
+  download(res, `dodit-packages-${today()}.csv`, 'text/csv; charset=utf-8');
+  res.send(csv(rows));
+});
+
+app.post('/api/admin/restore', (req, res) => {
+  const b = req.body || {};
+  const data = b.app === 'dodit-studio' && b.data ? b.data : null;
+  const lists = ['services', 'portfolio', 'testimonials', 'bookings', 'clientPackages'];
+  if (!data || typeof data.settings !== 'object' || typeof data.schedule !== 'object' || !lists.every((k) => Array.isArray(data[k] || [])))
+    return res.status(400).json({ error: 'invalid_backup' });
+  // keep a copy of what is being replaced, just in case
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  fs.copyFileSync(DB_FILE, path.join(BACKUP_DIR, `before-restore-${Date.now()}.json`));
+  const defaults = defaultData();
+  db = {
+    ...defaults,
+    ...Object.fromEntries(lists.map((k) => [k, data[k] || []])),
+    settings: { ...defaults.settings, ...data.settings, social: { ...defaults.settings.social, ...(data.settings.social || {}) } },
+    schedule: { ...defaults.schedule, ...data.schedule },
+    auth: db.auth, // the password is never part of a backup
+  };
+  saveDb();
+  res.json({ ok: true, counts: Object.fromEntries(lists.map((k) => [k, db[k].length])) });
 });
 
 app.put('/api/admin/settings', (req, res) => {

@@ -35,6 +35,8 @@
     invalid_qty: 'اكتب عدد صحيح أكبر من صفر',
     exceeds_remaining: 'العدد أكبر من المتبقي في الباقة',
     total_below_used: 'العدد الكلي مينفعش يبقى أقل من اللي اتصور فعلاً',
+    invalid_backup: 'الملف ده مش نسخة احتياطية صحيحة',
+    'request entity too large': 'الملف كبير جداً',
   };
 
   let data = null;
@@ -721,6 +723,31 @@
       e.target.reset();
       toast('تم تغيير كلمة السر ✓');
     } catch (err) { toast(err.message, true); }
+  });
+
+  /* ---------------- backup restore ---------------- */
+  $('#restoreFile').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    let backup;
+    try {
+      backup = JSON.parse(await file.text());
+    } catch {
+      return toast('الملف ده مش نسخة احتياطية صحيحة', true);
+    }
+    if (!backup || backup.app !== 'dodit-studio' || !backup.data) return toast('الملف ده مش نسخة احتياطية من Dodit Studio', true);
+    const d = backup.data;
+    const when = backup.exportedAt ? new Date(backup.exportedAt).toLocaleString('ar-EG') : 'غير معروف';
+    const msg = `استرجاع نسخة ${when}؟\n\nفيها: ${(d.bookings || []).length} حجز، و${(d.clientPackages || []).length} باقة عميل، و${(d.services || []).length} خدمة.\n\nالبيانات الحالية هتتبدل بالنسخة دي (والسيرفر بيحتفظ بنسخة من الحالية احتياطي).`;
+    if (!confirm(msg)) return;
+    try {
+      await api('/restore', { method: 'POST', body: backup });
+      await reload();
+      toast('اتسترجعت النسخة ✓');
+    } catch (err) {
+      toast(err.message, true);
+    }
   });
 
   /* ---------------- boot ---------------- */

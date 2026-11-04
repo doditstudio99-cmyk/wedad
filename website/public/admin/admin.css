@@ -157,3 +157,6 @@ h2, h3 { margin: 0 0 6px; }
 .wa-btn:hover { background: #1fb457; }
 .pkg-tag { display: inline-block; margin-top: 6px; background: var(--orange-soft); color: var(--orange); border-radius: 8px; padding: 3px 10px; font-weight: 700; font-size: 0.88rem; }
 .pkg-next { color: var(--orange); font-weight: 700; }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.restore { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.restore label.btn { display: inline-flex; cursor: pointer; font-weight: 700; }

@@ -120,6 +120,20 @@
       <section class="tab" data-panel="settings" hidden>
         <header class="tab-head"><div><h2>الإعدادات</h2><p>نصوص الموقع وبيانات التواصل والسوشيال ميديا.</p></div></header>
         <form id="settingsForm" class="panel"></form>
+        <section class="panel" id="backupPanel">
+          <h3>💾 النسخة الاحتياطية</h3>
+          <p class="muted-note">حمّلي نسخة كل أسبوع واحفظيها على Google Drive أو الموبايل. والسيرفر كمان بيحتفظ لوحده بنسخة كل يوم لآخر ١٤ يوم.</p>
+          <div class="backup-actions">
+            <a class="btn primary" href="/api/admin/backup" download>⬇️ تحميل نسخة احتياطية كاملة</a>
+            <a class="btn ghost" href="/api/admin/export/bookings.csv" download>📊 الحجوزات (Excel)</a>
+            <a class="btn ghost" href="/api/admin/export/packages.csv" download>📦 باقات العملاء (Excel)</a>
+          </div>
+          <div class="restore">
+            <label class="btn ghost" for="restoreFile">⬆️ استرجاع من نسخة احتياطية</label>
+            <input type="file" id="restoreFile" accept="application/json,.json" hidden />
+            <small class="muted-note">الاسترجاع بيرجّع كل البيانات زي ما كانت في الملف (كلمة السر مش بتتغير).</small>
+          </div>
+        </section>
         <form id="passwordForm" class="panel">
           <h3>تغيير كلمة السر</h3>
           <div class="grid2">
