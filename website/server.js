@@ -344,6 +344,7 @@ app.put('/api/admin/settings', (req, res) => {
     currency: bi(b.currency, 20),
     timezone: str(b.timezone, 60) || 'Africa/Cairo',
     heroVideo: safeUrl(b.heroVideo),
+    packageMessage: str(b.packageMessage, 1500) || defaultData().settings.packageMessage,
     social,
   };
   try {
@@ -435,6 +436,91 @@ app.delete('/api/admin/bookings/:id', (req, res) => {
   if (db.bookings.length === before) return res.status(404).json({ error: 'not_found' });
   saveDb();
   res.json({ ok: true });
+});
+
+/* ---------- admin: client packages (usage tracking) ---------- */
+const usedOf = (p) => p.usage.reduce((sum, u) => sum + u.qty, 0);
+const withTotals = (p) => ({ ...p, used: usedOf(p), remaining: p.total - usedOf(p) });
+const findPackage = (id) => db.clientPackages.find((x) => x.id === id);
+
+function cleanPackage(b) {
+  return {
+    name: str(b.name, 100),
+    phone: str(b.phone, 30),
+    title: str(b.title, 150),
+    unit: str(b.unit, 30) || 'ريل',
+    total: Math.round(Number(b.total)),
+    startDate: isDate(str(b.startDate, 10)) ? str(b.startDate, 10) : '',
+    expiryDate: isDate(str(b.expiryDate, 10)) ? str(b.expiryDate, 10) : '',
+    notes: str(b.notes, 1000),
+  };
+}
+function packageError(p) {
+  if (p.name.length < 2) return 'invalid_name';
+  if (!/^\+?[\d\s-]{7,20}$/.test(p.phone)) return 'invalid_phone';
+  if (!Number.isInteger(p.total) || p.total < 1 || p.total > 10000) return 'invalid_total';
+  return null;
+}
+
+app.get('/api/admin/client-packages', (req, res) => res.json(db.clientPackages.map(withTotals)));
+
+app.post('/api/admin/client-packages', (req, res) => {
+  const p = cleanPackage(req.body || {});
+  const err = packageError(p);
+  if (err) return res.status(400).json({ error: err });
+  const item = { id: newId(), ...p, usage: [], createdAt: new Date().toISOString() };
+  db.clientPackages.push(item);
+  saveDb();
+  res.status(201).json(withTotals(item));
+});
+
+app.put('/api/admin/client-packages/:id', (req, res) => {
+  const item = findPackage(req.params.id);
+  if (!item) return res.status(404).json({ error: 'not_found' });
+  const p = cleanPackage(req.body || {});
+  const err = packageError(p);
+  if (err) return res.status(400).json({ error: err });
+  if (p.total < usedOf(item)) return res.status(400).json({ error: 'total_below_used' });
+  Object.assign(item, p);
+  saveDb();
+  res.json(withTotals(item));
+});
+
+app.delete('/api/admin/client-packages/:id', (req, res) => {
+  const before = db.clientPackages.length;
+  db.clientPackages = db.clientPackages.filter((x) => x.id !== req.params.id);
+  if (db.clientPackages.length === before) return res.status(404).json({ error: 'not_found' });
+  saveDb();
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/client-packages/:id/usage', (req, res) => {
+  const item = findPackage(req.params.id);
+  if (!item) return res.status(404).json({ error: 'not_found' });
+  const qty = Math.round(Number(req.body && req.body.qty));
+  const date = str(req.body && req.body.date, 10);
+  if (!Number.isInteger(qty) || qty < 1) return res.status(400).json({ error: 'invalid_qty' });
+  if (qty > item.total - usedOf(item)) return res.status(400).json({ error: 'exceeds_remaining' });
+  const entry = {
+    id: newId(),
+    qty,
+    date: isDate(date) ? date : nowInTz(db.settings.timezone || 'Africa/Cairo').date,
+    note: str(req.body && req.body.note, 300),
+    createdAt: new Date().toISOString(),
+  };
+  item.usage.push(entry);
+  saveDb();
+  res.status(201).json({ entry, package: withTotals(item) });
+});
+
+app.delete('/api/admin/client-packages/:id/usage/:uid', (req, res) => {
+  const item = findPackage(req.params.id);
+  if (!item) return res.status(404).json({ error: 'not_found' });
+  const before = item.usage.length;
+  item.usage = item.usage.filter((u) => u.id !== req.params.uid);
+  if (item.usage.length === before) return res.status(404).json({ error: 'not_found' });
+  saveDb();
+  res.json(withTotals(item));
 });
 
 /* ---------- admin: content collections ---------- */

@@ -31,6 +31,8 @@ function defaultData() {
       currency: { ar: 'ج.م', en: 'EGP' },
       timezone: 'Africa/Cairo',
       heroVideo: '',
+      // WhatsApp message sent after logging package usage (placeholders in {curly braces})
+      packageMessage: 'أهلاً {الاسم} 👋\nمعاك {الاستوديو}.\nتم تصوير {اللي_اتصور} {الوحدة} يوم {التاريخ} ✅\n\n📦 باقتك: {الباقة}\n🎬 المستهلك: {المستهلك} من {الكلي}\n✨ المتبقي: {المتبقي} {الوحدة}\n\nمستنيينك في الجلسة الجاية 🧡',
       social: {
         instagram: 'https://instagram.com/',
         facebook: 'https://facebook.com/',
@@ -154,6 +156,8 @@ function defaultData() {
       },
     ],
     bookings: [],
+    // Client packages: what a client paid for (e.g. 10 reels) and what has been used so far
+    clientPackages: [],
   };
 }
 

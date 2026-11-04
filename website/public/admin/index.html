@@ -30,6 +30,7 @@
       <div class="brand"><span class="logo-mark">D</span><b>dodit<span>studio</span></b></div>
       <nav id="tabs">
         <button data-tab="bookings" class="active">📅 الحجوزات <span class="count" id="pendingCount"></span></button>
+        <button data-tab="packages">📦 باقات العملاء</button>
         <button data-tab="schedule">🕒 مواعيد العمل</button>
         <button data-tab="services">💼 الخدمات والأسعار</button>
         <button data-tab="portfolio">🎬 معرض الأعمال</button>
@@ -60,6 +61,23 @@
           <input type="search" id="bookingSearch" placeholder="بحث بالاسم أو الرقم…" />
         </div>
         <div id="bookingsList" class="cards"></div>
+      </section>
+
+      <!-- CLIENT PACKAGES -->
+      <section class="tab" data-panel="packages" hidden>
+        <header class="tab-head">
+          <div><h2>باقات العملاء</h2><p>سجّل باقة كل عميل، وكل ما يصوّر سجّل الاستهلاك، وابعتله رصيده على واتساب بضغطة.</p></div>
+          <button class="btn primary" id="addPackageBtn">+ باقة جديدة</button>
+        </header>
+        <div class="toolbar">
+          <div class="seg" id="pkgFilter">
+            <button data-f="active" class="active">شغالة</button>
+            <button data-f="done">خلصت</button>
+            <button data-f="all">الكل</button>
+          </div>
+          <input type="search" id="pkgSearch" placeholder="بحث بالاسم أو الرقم…" />
+        </div>
+        <div id="packagesList" class="cards"></div>
       </section>
 
       <!-- SCHEDULE -->
