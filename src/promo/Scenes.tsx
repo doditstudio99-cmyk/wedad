@@ -7,9 +7,16 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { Logo, PopText, ReelCard, rnd, StudioBackground, Viewfinder } from "./Fx";
+import {
+  Logo,
+  PopText,
+  ReelCard,
+  rnd,
+  StudioBackground,
+  Viewfinder,
+} from "./Fx";
 import { arNum, C, cairo, lalezar, montserrat } from "./theme";
-import { f, PRICE_HIT } from "./timeline";
+import { f, VALUE_BEATS } from "./timeline";
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
@@ -22,13 +29,17 @@ export const HookScene: React.FC = () => {
   const cardIn = spring({ frame: frame - 4, fps, config: { damping: 14 } });
   const wobble = Math.sin(frame / 6) * 3;
   // at the second line, the lonely reel "shrinks" with a little shake
-  const doubt = interpolate(frame, [f(2.3), f(2.8)], [1, 0.82], clamp);
-  const shake = frame > f(2.3) && frame < f(2.9) ? Math.sin(frame * 3) * 10 : 0;
+  const doubt = interpolate(frame, [f(1.7), f(2.2)], [1, 0.82], clamp);
+  const shake = frame > f(1.7) && frame < f(2.3) ? Math.sin(frame * 3) * 10 : 0;
   return (
     <AbsoluteFill>
       <StudioBackground intensity={0.6} />
       <AbsoluteFill style={{ alignItems: "center", top: 330 }}>
-        <div style={{ transform: `translateX(${shake}px) rotate(${-6 + wobble}deg) scale(${cardIn * doubt})` }}>
+        <div
+          style={{
+            transform: `translateX(${shake}px) rotate(${-6 + wobble}deg) scale(${cardIn * doubt})`,
+          }}
+        >
           <ReelCard w={300} label="ريل واحد" />
         </div>
         <div
@@ -44,9 +55,20 @@ export const HookScene: React.FC = () => {
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{ justifyContent: "flex-end", paddingBottom: 330 }}>
-        <PopText text="لسه بتصوّر ريل واحد؟" delay={3} size={112} highlight={["واحد؟"]} />
+        <PopText
+          text="لسه بتصوّر ريل واحد؟"
+          delay={3}
+          size={112}
+          highlight={["واحد؟"]}
+        />
         <div style={{ height: 20 }} />
-        <PopText text="ومفكّر إنك كده عملت محتوى؟!" delay={f(2.2)} size={84} color={C.cream} stagger={2} />
+        <PopText
+          text="ومفكّر إنك كده عملت محتوى؟!"
+          delay={f(1.6)}
+          size={84}
+          color={C.cream}
+          stagger={2}
+        />
       </AbsoluteFill>
       <Viewfinder />
     </AbsoluteFill>
@@ -108,7 +130,11 @@ export const MonthScene: React.FC = () => {
           }}
         >
           {Array.from({ length: days }).map((_, i) => {
-            const s = spring({ frame: frame - 10 - i * 1.6, fps, config: { damping: 11, stiffness: 200 } });
+            const s = spring({
+              frame: frame - 10 - i * 1.6,
+              fps,
+              config: { damping: 11, stiffness: 200 },
+            });
             return (
               <div
                 key={i}
@@ -161,7 +187,13 @@ export const MonthScene: React.FC = () => {
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{ justifyContent: "flex-end", paddingBottom: 230 }}>
-        <PopText text="وبأسعار تخلّيك تبدأ من غير ما تفكّر كتير!" delay={f(2.6)} size={70} stagger={2} highlight={["تبدأ"]} />
+        <PopText
+          text="وبأسعار تخلّيك تبدأ من غير ما تفكّر كتير!"
+          delay={f(3.2)}
+          size={70}
+          stagger={2}
+          highlight={["تبدأ"]}
+        />
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -173,14 +205,35 @@ export const MonthScene: React.FC = () => {
 export const IntroScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const slam = spring({ frame: frame - 2, fps, config: { damping: 9, stiffness: 160 } });
+  const slam = spring({
+    frame: frame - 2,
+    fps,
+    config: { damping: 9, stiffness: 160 },
+  });
   const sweep = interpolate(frame, [8, 30], [-120, 220], clamp);
   return (
     <AbsoluteFill>
       <StudioBackground intensity={1.3} />
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-        <div style={{ fontFamily: cairo, fontWeight: 800, fontSize: 80, color: C.cream, opacity: slam, marginBottom: 40 }}>مع</div>
-        <div style={{ position: "relative", transform: `scale(${interpolate(slam, [0, 1], [3, 1.25])})`, opacity: Math.min(1, slam * 2) }}>
+        <div
+          style={{
+            fontFamily: cairo,
+            fontWeight: 800,
+            fontSize: 80,
+            color: C.cream,
+            opacity: slam,
+            marginBottom: 40,
+          }}
+        >
+          مع
+        </div>
+        <div
+          style={{
+            position: "relative",
+            transform: `scale(${interpolate(slam, [0, 1], [3, 1.25])})`,
+            opacity: Math.min(1, slam * 2),
+          }}
+        >
           <Logo size={1.2} glow={0.7} />
           <div
             style={{
@@ -192,7 +245,12 @@ export const IntroScene: React.FC = () => {
           />
         </div>
         <div style={{ height: 120 }} />
-        <PopText text="عندك باقات تختار منها" delay={f(1.2)} size={92} highlight={["باقات"]} />
+        <PopText
+          text="عندك باقات تختار منها"
+          delay={f(1.1)}
+          size={92}
+          highlight={["باقات"]}
+        />
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -208,16 +266,39 @@ export const PriceScene: React.FC<{
   price: number;
   tagline?: string;
   badge?: string;
-}> = ({ index, reels, reelWord, price, tagline, badge }) => {
+  /** seconds into the scene when the reel count and the price are spoken */
+  reelsAt: number;
+  priceAt: number;
+  /** show the tagline before the price (when the voiceover says it first) */
+  taglineFirst?: boolean;
+}> = ({
+  index,
+  reels,
+  reelWord,
+  price,
+  tagline,
+  badge,
+  reelsAt,
+  priceAt,
+  taglineFirst = false,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const hit = f(PRICE_HIT);
-  const head = spring({ frame, fps, config: { damping: 13 } });
+  const hit = f(priceAt);
+  const head = spring({
+    frame: frame - f(reelsAt) + 6,
+    fps,
+    config: { damping: 13 },
+  });
   const count = interpolate(frame, [hit - 8, hit + 6], [0, price], {
     ...clamp,
     easing: Easing.out(Easing.cubic),
   });
-  const priceS = spring({ frame: frame - (hit - 8), fps, config: { damping: 8, stiffness: 170 } });
+  const priceS = spring({
+    frame: frame - (hit - 8),
+    fps,
+    config: { damping: 8, stiffness: 170 },
+  });
   const ring = interpolate(frame, [hit, hit + 18], [0, 1], clamp);
   const cards = Math.min(reels, 20);
   return (
@@ -227,7 +308,11 @@ export const PriceScene: React.FC<{
       <AbsoluteFill style={{ alignItems: "center", top: 330 }}>
         <div style={{ position: "relative", width: 10, height: 420 }}>
           {Array.from({ length: cards }).map((_, i) => {
-            const s = spring({ frame: frame - 4 - i * (12 / cards) * 1.4, fps, config: { damping: 13 } });
+            const s = spring({
+              frame: frame - 4 - i * (12 / cards) * 1.4,
+              fps,
+              config: { damping: 13 },
+            });
             const spread = cards === 1 ? 0 : (i / (cards - 1) - 0.5) * 2;
             const angle = spread * (cards > 10 ? 70 : 40) * s;
             return (
@@ -248,7 +333,9 @@ export const PriceScene: React.FC<{
           })}
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{ alignItems: "center", top: 860, direction: "rtl" }}>
+      <AbsoluteFill
+        style={{ alignItems: "center", top: 860, direction: "rtl" }}
+      >
         <div
           style={{
             display: "flex",
@@ -287,7 +374,16 @@ export const PriceScene: React.FC<{
             </div>
           ) : null}
         </div>
-        <div style={{ fontFamily: lalezar, fontSize: 210, lineHeight: 1.2, color: "white", transform: `scale(${0.6 + head * 0.4})` }}>
+        <div
+          style={{
+            fontFamily: lalezar,
+            fontSize: 210,
+            lineHeight: 1.2,
+            color: "white",
+            transform: `scale(${0.6 + head * 0.4})`,
+            opacity: Math.min(1, head * 1.5),
+          }}
+        >
           {arNum(reels)} <span style={{ color: C.orange }}>{reelWord}</span>
         </div>
         <div
@@ -304,8 +400,26 @@ export const PriceScene: React.FC<{
             gap: 26,
           }}
         >
-          <span style={{ fontFamily: lalezar, fontSize: 230, color: "white", lineHeight: 1.15 }}>{arNum(count)}</span>
-          <span style={{ fontFamily: cairo, fontWeight: 900, fontSize: 90, color: C.ink }}>جنيه</span>
+          <span
+            style={{
+              fontFamily: lalezar,
+              fontSize: 230,
+              color: "white",
+              lineHeight: 1.15,
+            }}
+          >
+            {arNum(count)}
+          </span>
+          <span
+            style={{
+              fontFamily: cairo,
+              fontWeight: 900,
+              fontSize: 90,
+              color: C.ink,
+            }}
+          >
+            جنيه
+          </span>
           <div
             style={{
               position: "absolute",
@@ -319,7 +433,13 @@ export const PriceScene: React.FC<{
         </div>
         {tagline ? (
           <div style={{ marginTop: 60 }}>
-            <PopText text={tagline} delay={hit + 18} size={64} color={C.cream} stagger={2} />
+            <PopText
+              text={tagline}
+              delay={taglineFirst ? 4 : hit + 18}
+              size={64}
+              color={C.cream}
+              stagger={2}
+            />
           </div>
         ) : null}
       </AbsoluteFill>
@@ -339,22 +459,53 @@ const BEATS: { text: string; hl: string[]; strike?: boolean }[] = [
 
 export const ValueScene: React.FC<{ duration: number }> = ({ duration }) => {
   const frame = useCurrentFrame();
-  const per = duration / BEATS.length;
-  const i = Math.min(BEATS.length - 1, Math.floor(frame / per));
-  const local = frame - i * per;
+  const starts = VALUE_BEATS.map(f);
+  let i = 0;
+  while (i < starts.length - 1 && frame >= starts[i + 1]) i++;
+  const per = (i + 1 < starts.length ? starts[i + 1] : duration) - starts[i];
+  const local = frame - starts[i];
   const beat = BEATS[i];
   const strike = interpolate(local, [per * 0.5, per * 0.75], [0, 1], clamp);
   const lightBg = i % 2 === 1;
   const zoom = interpolate(local, [0, per], [1.08, 1]);
   return (
     <AbsoluteFill>
-      {lightBg ? <AbsoluteFill style={{ background: `linear-gradient(160deg, ${C.orange2}, ${C.orange})` }} /> : <StudioBackground />}
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", transform: `scale(${zoom})` }}>
-        <div style={{ fontFamily: montserrat, fontWeight: 900, fontSize: 40, letterSpacing: 12, color: lightBg ? C.ink : C.orange, marginBottom: 40 }}>
+      {lightBg ? (
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(160deg, ${C.orange2}, ${C.orange})`,
+          }}
+        />
+      ) : (
+        <StudioBackground />
+      )}
+      <AbsoluteFill
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          transform: `scale(${zoom})`,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: montserrat,
+            fontWeight: 900,
+            fontSize: 40,
+            letterSpacing: 12,
+            color: lightBg ? C.ink : C.orange,
+            marginBottom: 40,
+          }}
+        >
           {`0${i + 1} / 04`}
         </div>
         <div style={{ position: "relative" }}>
-          <PopText key={i} text={beat.text} size={124} color={lightBg ? C.ink : "white"} highlight={lightBg ? [] : beat.hl} />
+          <PopText
+            key={i}
+            text={beat.text}
+            size={124}
+            color={lightBg ? C.ink : "white"}
+            highlight={lightBg ? [] : beat.hl}
+          />
           {beat.strike ? (
             <div
               style={{
@@ -388,13 +539,39 @@ export const StopScene: React.FC = () => {
   const shake = frame < 14 ? Math.sin(frame * 2.5) * (14 - frame) * 2 : 0;
   const strobe = Math.floor(frame / 4) % 2 === 0;
   return (
-    <AbsoluteFill style={{ background: strobe && frame < 20 ? C.orange : C.ink }}>
+    <AbsoluteFill
+      style={{ background: strobe && frame < 20 ? C.orange : C.ink }}
+    >
       <StudioBackground intensity={1.5} />
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", transform: `translate(${shake}px, ${-shake / 2}px)` }}>
-        <div style={{ fontFamily: lalezar, fontSize: 300, lineHeight: 1.05, color: "white", transform: `scale(${interpolate(s, [0, 1], [2.4, 1])})`, textShadow: `0 0 80px ${C.orange}` }}>
+      <AbsoluteFill
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          transform: `translate(${shake}px, ${-shake / 2}px)`,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: lalezar,
+            fontSize: 300,
+            lineHeight: 1.05,
+            color: "white",
+            transform: `scale(${interpolate(s, [0, 1], [2.4, 1])})`,
+            textShadow: `0 0 80px ${C.orange}`,
+          }}
+        >
           بطّل
         </div>
-        <div style={{ fontFamily: lalezar, fontSize: 190, lineHeight: 1.2, color: C.orange, direction: "rtl", opacity: interpolate(frame, [8, 14], [0, 1], clamp) }}>
+        <div
+          style={{
+            fontFamily: lalezar,
+            fontSize: 190,
+            lineHeight: 1.2,
+            color: C.orange,
+            direction: "rtl",
+            opacity: interpolate(frame, [8, 14], [0, 1], clamp),
+          }}
+        >
           تأجّل محتواك!
         </div>
       </AbsoluteFill>
@@ -409,10 +586,20 @@ export const BookScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const btn = spring({ frame: frame - 10, fps, config: { damping: 12 } });
-  const brand = spring({ frame: frame - f(0.9), fps, config: { damping: 12 } });
-  const tapAt = f(1.6);
-  const fingerX = interpolate(frame, [15, tapAt], [380, 120], { ...clamp, easing: Easing.out(Easing.quad) });
-  const fingerY = interpolate(frame, [15, tapAt], [380, 60], { ...clamp, easing: Easing.out(Easing.quad) });
+  const brand = spring({
+    frame: frame - f(1.75),
+    fps,
+    config: { damping: 12 },
+  });
+  const tapAt = f(1.05);
+  const fingerX = interpolate(frame, [15, tapAt], [380, 120], {
+    ...clamp,
+    easing: Easing.out(Easing.quad),
+  });
+  const fingerY = interpolate(frame, [15, tapAt], [380, 60], {
+    ...clamp,
+    easing: Easing.out(Easing.quad),
+  });
   const press = frame >= tapAt && frame < tapAt + 6 ? 0.9 : 1;
   const ripple = interpolate(frame, [tapAt, tapAt + 20], [0, 1], clamp);
   const booked = frame >= tapAt + 4;
@@ -422,22 +609,45 @@ export const BookScene: React.FC = () => {
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
         <PopText text="واحجز باقتك دلوقتي" size={128} highlight={["دلوقتي"]} />
         <div style={{ height: 50 }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 30, opacity: brand, transform: `scale(${0.7 + brand * 0.3})` }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 30,
+            opacity: brand,
+            transform: `scale(${0.7 + brand * 0.3})`,
+          }}
+        >
           <Logo size={0.8} />
-          <span style={{ fontFamily: cairo, fontWeight: 900, fontSize: 72, color: C.cream }}>مع</span>
+          <span
+            style={{
+              fontFamily: cairo,
+              fontWeight: 900,
+              fontSize: 72,
+              color: C.cream,
+            }}
+          >
+            مع
+          </span>
         </div>
         <div style={{ height: 120 }} />
-        <div style={{ position: "relative", transform: `scale(${btn * press})` }}>
+        <div
+          style={{ position: "relative", transform: `scale(${btn * press})` }}
+        >
           <div
             style={{
               fontFamily: cairo,
               fontWeight: 900,
               fontSize: 76,
               color: "white",
-              background: booked ? C.whatsapp : `linear-gradient(135deg, ${C.orange2}, ${C.orange})`,
+              background: booked
+                ? C.whatsapp
+                : `linear-gradient(135deg, ${C.orange2}, ${C.orange})`,
               borderRadius: 999,
               padding: "26px 110px",
-              boxShadow: booked ? "0 20px 80px rgba(37,211,102,0.6)" : "0 20px 80px rgba(255,107,0,0.6)",
+              boxShadow: booked
+                ? "0 20px 80px rgba(37,211,102,0.6)"
+                : "0 20px 80px rgba(255,107,0,0.6)",
               direction: "rtl",
             }}
           >
@@ -458,7 +668,17 @@ export const BookScene: React.FC = () => {
               opacity: frame >= tapAt ? 1 - ripple : 0,
             }}
           />
-          <div style={{ position: "absolute", left: `calc(50% + ${fingerX}px)`, top: `calc(50% + ${fingerY}px)`, fontSize: 130, opacity: btn }}>👆</div>
+          <div
+            style={{
+              position: "absolute",
+              left: `calc(50% + ${fingerX}px)`,
+              top: `calc(50% + ${fingerY}px)`,
+              fontSize: 130,
+              opacity: btn,
+            }}
+          >
+            👆
+          </div>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -482,7 +702,7 @@ export const EndScene: React.FC<{ whatsapp: string }> = ({ whatsapp }) => {
   const { fps } = useVideoConfig();
   const logo = spring({ frame, fps, config: { damping: 10, stiffness: 120 } });
   const glow = interpolate(frame, [0, 6, 40], [0, 1, 0.35], clamp);
-  const cta = spring({ frame: frame - f(1.6), fps, config: { damping: 12 } });
+  const cta = spring({ frame: frame - f(2.4), fps, config: { damping: 12 } });
   const pulse = 1 + Math.sin(frame / 5) * 0.025 * cta;
   const rays = frame * 0.4;
   return (
@@ -493,13 +713,28 @@ export const EndScene: React.FC<{ whatsapp: string }> = ({ whatsapp }) => {
           opacity: glow,
         }}
       />
-      <AbsoluteFill style={{ background: `radial-gradient(circle at 50% 40%, ${C.orange}88, transparent 50%)`, opacity: glow }} />
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(circle at 50% 40%, ${C.orange}88, transparent 50%)`,
+          opacity: glow,
+        }}
+      />
       <AbsoluteFill style={{ alignItems: "center", paddingTop: 560 }}>
-        <div style={{ transform: `scale(${interpolate(logo, [0, 1], [0.3, 1.45])})`, opacity: Math.min(1, logo * 2) }}>
+        <div
+          style={{
+            transform: `scale(${interpolate(logo, [0, 1], [0.3, 1.45])})`,
+            opacity: Math.min(1, logo * 2),
+          }}
+        >
           <Logo size={1.2} glow={0.8} />
         </div>
         <div style={{ height: 150 }} />
-        <PopText text="خلّي محتواك يتكلّم عنك!" delay={f(0.5)} size={104} highlight={["يتكلّم", "عنك!"]} />
+        <PopText
+          text="خلّي محتواك يتكلّم عنك!"
+          delay={f(1.3)}
+          size={104}
+          highlight={["يتكلّم", "عنك!"]}
+        />
         <div style={{ height: 110 }} />
         <div
           style={{
@@ -516,9 +751,36 @@ export const EndScene: React.FC<{ whatsapp: string }> = ({ whatsapp }) => {
           }}
         >
           <WhatsAppIcon size={90} />
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <span style={{ fontFamily: cairo, fontWeight: 900, fontSize: 56, color: "white", lineHeight: 1.3 }}>احجز على واتساب</span>
-            <span style={{ fontFamily: montserrat, fontWeight: 800, fontSize: 46, color: "white", direction: "ltr", letterSpacing: 2 }}>{whatsapp}</span>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
+          >
+            <span
+              style={{
+                fontFamily: cairo,
+                fontWeight: 900,
+                fontSize: 56,
+                color: "white",
+                lineHeight: 1.3,
+              }}
+            >
+              احجز على واتساب
+            </span>
+            <span
+              style={{
+                fontFamily: montserrat,
+                fontWeight: 800,
+                fontSize: 46,
+                color: "white",
+                direction: "ltr",
+                letterSpacing: 2,
+              }}
+            >
+              {whatsapp}
+            </span>
           </div>
         </div>
       </AbsoluteFill>

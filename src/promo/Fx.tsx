@@ -13,10 +13,10 @@ import { C, cairo, montserrat } from "./theme";
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 /** Dark studio backdrop with slowly drifting orange light. */
-export const StudioBackground: React.FC<{ tint?: string; intensity?: number }> = ({
-  tint = C.orange,
-  intensity = 1,
-}) => {
+export const StudioBackground: React.FC<{
+  tint?: string;
+  intensity?: number;
+}> = ({ tint = C.orange, intensity = 1 }) => {
   const frame = useCurrentFrame();
   const a = frame / 40;
   const x1 = 50 + Math.sin(a) * 25;
@@ -78,15 +78,25 @@ export const Grade: React.FC = () => {
           transform: `translateX(${Math.sin(frame / 50) * 300}px)`,
         }}
       />
-      <svg width="100%" height="100%" style={{ position: "absolute", opacity: 0.09, mixBlendMode: "overlay" }}>
+      <svg
+        width="100%"
+        height="100%"
+        style={{ position: "absolute", opacity: 0.09, mixBlendMode: "overlay" }}
+      >
         <filter id="grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={frame % 12} />
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.9"
+            numOctaves="2"
+            seed={frame % 12}
+          />
         </filter>
         <rect width="100%" height="100%" filter="url(#grain)" />
       </svg>
       <AbsoluteFill
         style={{
-          background: "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%)",
+          background:
+            "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%)",
         }}
       />
     </AbsoluteFill>
@@ -100,13 +110,28 @@ export const SceneShell: React.FC<{
   push?: number;
 }> = ({ duration, children, push = 0.06 }) => {
   const frame = useCurrentFrame();
-  const inP = interpolate(frame, [0, 9], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
-  const outP = interpolate(frame, [duration - 7, duration], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
-  const scale = interpolate(inP, [0, 1], [1.35, 1]) * (1 + push * (frame / duration)) * interpolate(outP, [0, 1], [1, 1.6]);
+  const inP = interpolate(frame, [0, 9], [0, 1], {
+    ...clamp,
+    easing: Easing.out(Easing.cubic),
+  });
+  const outP = interpolate(frame, [duration - 7, duration], [0, 1], {
+    ...clamp,
+    easing: Easing.in(Easing.cubic),
+  });
+  const scale =
+    interpolate(inP, [0, 1], [1.35, 1]) *
+    (1 + push * (frame / duration)) *
+    interpolate(outP, [0, 1], [1, 1.6]);
   const blur = (1 - inP) * 24 + outP * 30;
   const opacity = Math.min(inP * 1.5, 1 - outP * 0.9);
   return (
-    <AbsoluteFill style={{ transform: `scale(${scale})`, filter: `blur(${blur}px)`, opacity }}>
+    <AbsoluteFill
+      style={{
+        transform: `scale(${scale})`,
+        filter: `blur(${blur}px)`,
+        opacity,
+      }}
+    >
       {children}
     </AbsoluteFill>
   );
@@ -116,7 +141,11 @@ export const SceneShell: React.FC<{
 export const Flash: React.FC<{ color?: string }> = ({ color = "#fff" }) => {
   const frame = useCurrentFrame();
   const o = interpolate(frame, [0, 2, 8], [0, 0.85, 0], clamp);
-  return <AbsoluteFill style={{ background: color, opacity: o, mixBlendMode: "screen" }} />;
+  return (
+    <AbsoluteFill
+      style={{ background: color, opacity: o, mixBlendMode: "screen" }}
+    />
+  );
 };
 
 /** Camera viewfinder overlay (REC, timecode, focus brackets). */
@@ -149,20 +178,82 @@ export const Viewfinder: React.FC<{ startAt?: number }> = ({ startAt = 0 }) => {
       {corner({ top: 150, right: 60 }, 90)}
       {corner({ bottom: 150, right: 60 }, 180)}
       {corner({ bottom: 150, left: 60 }, 270)}
-      <div style={{ position: "absolute", top: 240, left: 100, display: "flex", alignItems: "center", gap: 16, fontSize: 38, fontWeight: 800 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 14, background: "#ff2a2a", opacity: blink ? 1 : 0.2 }} />
+      <div
+        style={{
+          position: "absolute",
+          top: 240,
+          left: 100,
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          fontSize: 38,
+          fontWeight: 800,
+        }}
+      >
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 14,
+            background: "#ff2a2a",
+            opacity: blink ? 1 : 0.2,
+          }}
+        />
         REC
       </div>
-      <div style={{ position: "absolute", top: 240, right: 100, fontSize: 34, fontWeight: 800, letterSpacing: 2 }}>{tc}</div>
-      <div style={{ position: "absolute", bottom: 230, left: 100, fontSize: 28, fontWeight: 800, opacity: 0.8 }}>4K · 60FPS</div>
-      <div style={{ position: "absolute", bottom: 230, right: 100, fontSize: 28, fontWeight: 800, opacity: 0.8 }}>ISO 400</div>
+      <div
+        style={{
+          position: "absolute",
+          top: 240,
+          right: 100,
+          fontSize: 34,
+          fontWeight: 800,
+          letterSpacing: 2,
+        }}
+      >
+        {tc}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 230,
+          left: 100,
+          fontSize: 28,
+          fontWeight: 800,
+          opacity: 0.8,
+        }}
+      >
+        4K · 60FPS
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 230,
+          right: 100,
+          fontSize: 28,
+          fontWeight: 800,
+          opacity: 0.8,
+        }}
+      >
+        ISO 400
+      </div>
     </AbsoluteFill>
   );
 };
 
 /** DODIT Studio logo: orange "D" mark + wordmark (same as the website). */
-export const Logo: React.FC<{ size?: number; glow?: number }> = ({ size = 1, glow = 0.35 }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 22 * size, direction: "ltr" }}>
+export const Logo: React.FC<{ size?: number; glow?: number }> = ({
+  size = 1,
+  glow = 0.35,
+}) => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 22 * size,
+      direction: "ltr",
+    }}
+  >
     <div
       style={{
         width: 110 * size,
@@ -180,7 +271,15 @@ export const Logo: React.FC<{ size?: number; glow?: number }> = ({ size = 1, glo
     >
       D
     </div>
-    <div style={{ fontFamily: montserrat, fontSize: 74 * size, letterSpacing: -2 * size, color: "white", fontWeight: 800 }}>
+    <div
+      style={{
+        fontFamily: montserrat,
+        fontSize: 74 * size,
+        letterSpacing: -2 * size,
+        color: "white",
+        fontWeight: 800,
+      }}
+    >
       dodit<span style={{ color: C.orange, fontWeight: 900 }}>studio</span>
     </div>
   </div>
@@ -191,7 +290,17 @@ export const LogoBug: React.FC = () => {
   const frame = useCurrentFrame();
   const o = interpolate(frame, [0, 15], [0, 1], clamp);
   return (
-    <div style={{ position: "absolute", top: 70, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: o * 0.95 }}>
+    <div
+      style={{
+        position: "absolute",
+        top: 70,
+        left: 0,
+        right: 0,
+        display: "flex",
+        justifyContent: "center",
+        opacity: o * 0.95,
+      }}
+    >
       <Logo size={0.5} glow={0.2} />
     </div>
   );
@@ -207,7 +316,16 @@ export const PopText: React.FC<{
   highlight?: string[];
   font?: string;
   weight?: number;
-}> = ({ text, delay = 0, size = 110, color = "white", stagger = 3, highlight = [], font = cairo, weight = 900 }) => {
+}> = ({
+  text,
+  delay = 0,
+  size = 110,
+  color = "white",
+  stagger = 3,
+  highlight = [],
+  font = cairo,
+  weight = 900,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const words = text.split(" ");
@@ -229,7 +347,11 @@ export const PopText: React.FC<{
       }}
     >
       {words.map((w, i) => {
-        const s = spring({ frame: frame - delay - i * stagger, fps, config: { damping: 12, stiffness: 180, mass: 0.6 } });
+        const s = spring({
+          frame: frame - delay - i * stagger,
+          fps,
+          config: { damping: 12, stiffness: 180, mass: 0.6 },
+        });
         const hl = highlight.indexOf(w) !== -1;
         return (
           <span
@@ -239,7 +361,9 @@ export const PopText: React.FC<{
               transform: `translateY(${(1 - s) * 60}px) scale(${0.6 + s * 0.4})`,
               opacity: Math.min(1, s * 1.4),
               color: hl ? C.orange : undefined,
-              textShadow: hl ? `0 0 40px ${C.orange}aa` : "0 8px 30px rgba(0,0,0,0.6)",
+              textShadow: hl
+                ? `0 0 40px ${C.orange}aa`
+                : "0 8px 30px rgba(0,0,0,0.6)",
             }}
           >
             {w}
@@ -251,12 +375,12 @@ export const PopText: React.FC<{
 };
 
 /** Little vertical reel thumbnail (phone-shaped card with a play button). */
-export const ReelCard: React.FC<{ w?: number; hue?: number; label?: string; style?: React.CSSProperties }> = ({
-  w = 160,
-  hue = 0,
-  label,
-  style,
-}) => {
+export const ReelCard: React.FC<{
+  w?: number;
+  hue?: number;
+  label?: string;
+  style?: React.CSSProperties;
+}> = ({ w = 160, hue = 0, label, style }) => {
   const h = w * 1.78;
   return (
     <div
@@ -322,7 +446,17 @@ export const ReelCard: React.FC<{ w?: number; hue?: number; label?: string; styl
           {label}
         </div>
       ) : null}
-      <div style={{ position: "absolute", bottom: w * 0.05, left: w * 0.08, right: w * 0.08, height: w * 0.025, background: "rgba(255,255,255,0.4)", borderRadius: 4 }} />
+      <div
+        style={{
+          position: "absolute",
+          bottom: w * 0.05,
+          left: w * 0.08,
+          right: w * 0.08,
+          height: w * 0.025,
+          background: "rgba(255,255,255,0.4)",
+          borderRadius: 4,
+        }}
+      />
     </div>
   );
 };

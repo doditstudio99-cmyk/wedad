@@ -12,7 +12,14 @@ import {
   StopScene,
   ValueScene,
 } from "./Scenes";
-import { f, PRICE_HIT, SceneName, SCENES, sceneFrames, TOTAL_FRAMES } from "./timeline";
+import {
+  f,
+  PRICE_TIMING,
+  SceneName,
+  SCENES,
+  sceneFrames,
+  TOTAL_FRAMES,
+} from "./timeline";
 
 export type DoditPromoProps = {
   /** Shown on the end card. */
@@ -21,24 +28,35 @@ export type DoditPromoProps = {
   voiceover: string | null;
 };
 
-const Scene: React.FC<{ name: SceneName; children: (duration: number) => React.ReactNode; shell?: boolean }> = ({
-  name,
-  children,
-  shell = true,
-}) => {
+const Scene: React.FC<{
+  name: SceneName;
+  children: (duration: number) => React.ReactNode;
+  shell?: boolean;
+}> = ({ name, children, shell = true }) => {
   const { from, duration } = sceneFrames(name);
   return (
     <Sequence from={from} durationInFrames={duration} name={name}>
-      {shell ? <SceneShell duration={duration}>{children(duration)}</SceneShell> : children(duration)}
+      {shell ? (
+        <SceneShell duration={duration}>{children(duration)}</SceneShell>
+      ) : (
+        children(duration)
+      )}
     </Sequence>
   );
 };
 
 const sfx = (file: string) => staticFile(`dodit-promo/${file}`);
 
-export const DoditPromo: React.FC<DoditPromoProps> = ({ whatsapp, voiceover }) => {
-  const cuts = (Object.keys(SCENES) as SceneName[]).slice(1).map((n) => f(SCENES[n].from));
-  const priceHits = (["p1", "p2", "p3"] as const).map((n) => f(SCENES[n].from + PRICE_HIT));
+export const DoditPromo: React.FC<DoditPromoProps> = ({
+  whatsapp,
+  voiceover,
+}) => {
+  const cuts = (Object.keys(SCENES) as SceneName[])
+    .slice(1)
+    .map((n) => f(SCENES[n].from));
+  const priceHits = (["p1", "p2", "p3"] as const).map((n) =>
+    f(SCENES[n].from + PRICE_TIMING[n].price),
+  );
   const musicVolume = voiceover ? 0.32 : 0.7;
 
   return (
@@ -46,10 +64,46 @@ export const DoditPromo: React.FC<DoditPromoProps> = ({ whatsapp, voiceover }) =
       <Scene name="hook">{() => <HookScene />}</Scene>
       <Scene name="month">{() => <MonthScene />}</Scene>
       <Scene name="intro">{() => <IntroScene />}</Scene>
-      <Scene name="p1">{() => <PriceScene index={0} reels={5} reelWord="ريلز" price={2000} tagline="بداية قوية لصفحتك" />}</Scene>
-      <Scene name="p2">{() => <PriceScene index={1} reels={10} reelWord="ريلز" price={3500} tagline="محتوى ثابت طول الشهر" />}</Scene>
+      <Scene name="p1">
+        {() => (
+          <PriceScene
+            index={0}
+            reels={5}
+            reelWord="ريلز"
+            price={2000}
+            tagline="بداية قوية لصفحتك"
+            reelsAt={PRICE_TIMING.p1.reels}
+            priceAt={PRICE_TIMING.p1.price}
+          />
+        )}
+      </Scene>
+      <Scene name="p2">
+        {() => (
+          <PriceScene
+            index={1}
+            reels={10}
+            reelWord="ريلز"
+            price={3500}
+            tagline="محتوى ثابت طول الشهر"
+            reelsAt={PRICE_TIMING.p2.reels}
+            priceAt={PRICE_TIMING.p2.price}
+          />
+        )}
+      </Scene>
       <Scene name="p3">
-        {() => <PriceScene index={2} reels={20} reelWord="ريل" price={6250} badge="الأوفر" tagline="ولو عايز تكبر أكتر" />}
+        {() => (
+          <PriceScene
+            index={2}
+            reels={20}
+            reelWord="ريل"
+            price={6250}
+            badge="الأوفر"
+            tagline="ولو عايز تكبر أكتر"
+            taglineFirst
+            reelsAt={PRICE_TIMING.p3.reels}
+            priceAt={PRICE_TIMING.p3.price}
+          />
+        )}
       </Scene>
       <Scene name="value">{(d) => <ValueScene duration={d} />}</Scene>
       <Scene name="stop">{() => <StopScene />}</Scene>
@@ -75,15 +129,25 @@ export const DoditPromo: React.FC<DoditPromoProps> = ({ whatsapp, voiceover }) =
       <Audio
         src={sfx("music.wav")}
         volume={(fr) =>
-          interpolate(fr, [0, 10, TOTAL_FRAMES - 45, TOTAL_FRAMES], [0, musicVolume, musicVolume, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          })
+          interpolate(
+            fr,
+            [0, 10, TOTAL_FRAMES - 45, TOTAL_FRAMES],
+            [0, musicVolume, musicVolume, 0],
+            {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            },
+          )
         }
       />
       {voiceover ? <Audio src={staticFile(voiceover)} volume={1} /> : null}
       {cuts.map((c) => (
-        <Sequence key={`w${c}`} from={Math.max(0, c - 8)} durationInFrames={20} name="whoosh">
+        <Sequence
+          key={`w${c}`}
+          from={Math.max(0, c - 8)}
+          durationInFrames={20}
+          name="whoosh"
+        >
           <Audio src={sfx("whoosh.wav")} volume={0.55} />
         </Sequence>
       ))}
@@ -92,7 +156,11 @@ export const DoditPromo: React.FC<DoditPromoProps> = ({ whatsapp, voiceover }) =
           <Audio src={sfx("ding.wav")} volume={0.6} />
         </Sequence>
       ))}
-      <Sequence from={f(SCENES.end.from) - 45} durationInFrames={45} name="riser">
+      <Sequence
+        from={f(SCENES.end.from) - 45}
+        durationInFrames={45}
+        name="riser"
+      >
         <Audio src={sfx("riser.wav")} volume={0.6} />
       </Sequence>
       <Sequence from={f(SCENES.end.from)} durationInFrames={90} name="impact">

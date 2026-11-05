@@ -158,7 +158,7 @@ def cash():
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    write("music.wav", music(44))
+    write("music.wav", music(46))
     write("whoosh.wav", whoosh())
     write("riser.wav", riser())
     write("impact.wav", impact())
