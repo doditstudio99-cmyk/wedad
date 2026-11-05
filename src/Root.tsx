@@ -32,7 +32,7 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         defaultProps={
           {
-            whatsapp: "+20 100 000 0000",
+            whatsapp: "0102 556 0533",
             voiceover: null,
           } satisfies DoditPromoProps
         }

@@ -101,7 +101,7 @@ export const MonthScene: React.FC = () => {
             transform: `translateY(${(1 - titleS) * 40}px)`,
           }}
         >
-          طيب، إيه رأيك تصوّر
+          طب، إيه رأيك تصوّر
         </div>
         <div
           style={{
@@ -189,7 +189,7 @@ export const MonthScene: React.FC = () => {
       <AbsoluteFill style={{ justifyContent: "flex-end", paddingBottom: 230 }}>
         <PopText
           text="وبأسعار تخلّيك تبدأ من غير ما تفكّر كتير!"
-          delay={f(3.2)}
+          delay={f(2.7)}
           size={70}
           stagger={2}
           highlight={["تبدأ"]}
@@ -247,7 +247,7 @@ export const IntroScene: React.FC = () => {
         <div style={{ height: 120 }} />
         <PopText
           text="عندك باقات تختار منها"
-          delay={f(1.1)}
+          delay={f(1.5)}
           size={92}
           highlight={["باقات"]}
         />
@@ -587,11 +587,11 @@ export const BookScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const btn = spring({ frame: frame - 10, fps, config: { damping: 12 } });
   const brand = spring({
-    frame: frame - f(1.75),
+    frame: frame - f(1.45),
     fps,
     config: { damping: 12 },
   });
-  const tapAt = f(1.05);
+  const tapAt = f(0.85);
   const fingerX = interpolate(frame, [15, tapAt], [380, 120], {
     ...clamp,
     easing: Easing.out(Easing.quad),
