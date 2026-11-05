@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@800&family=Cairo:wght@700;900&display=block" rel="stylesheet">
+<style>
+  :root{--y:#ffe500; --o:#ff6a00; --r:#ff1e3c; --k:#0d0d0d; --wa:#25d366}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000}
+  .ad{position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--k);font-family:'Cairo',sans-serif;color:#fff}
+  .photo{position:absolute;inset:0 0 auto 0;height:820px;background-repeat:no-repeat;
+    -webkit-mask-image:linear-gradient(#000 70%,transparent 100%);mask-image:linear-gradient(#000 70%,transparent 100%)}
+  .slash{position:absolute;left:-100px;right:-100px;top:705px;height:290px;transform:rotate(-4deg);
+    background:var(--y);box-shadow:0 0 0 12px var(--k),0 0 0 22px var(--o)}
+  .logo{position:absolute;top:34px;right:40px;display:flex;align-items:center;gap:12px;z-index:5;
+    background:rgba(0,0,0,.65);padding:8px 20px;border-radius:14px;font:900 30px 'Cairo';letter-spacing:1px;direction:ltr}
+  .logo small{font-size:18px;font-weight:700;opacity:.8}
+  .live{position:absolute;top:34px;left:40px;z-index:5;display:flex;align-items:center;gap:12px;
+    background:var(--r);font-weight:900;font-size:30px;padding:8px 24px 12px;border-radius:12px;
+    box-shadow:0 0 0 6px rgba(255,30,60,.35)}
+  .live i{width:16px;height:16px;border-radius:50%;background:#fff}
+  .tag{position:absolute;top:648px;right:70px;z-index:5;transform:rotate(-4deg);
+    background:var(--k);color:var(--y);font:800 64px/1.25 'Baloo Bhaijaan 2';padding:0 32px 8px;border-radius:18px;
+    border:5px solid var(--y)}
+  .head{position:absolute;top:770px;width:100%;text-align:center;z-index:4;transform:rotate(-4deg);
+    font:800 170px/1 'Baloo Bhaijaan 2';color:var(--k);letter-spacing:-2px}
+  .head b{color:var(--r);font-weight:800}
+  .hook{position:absolute;top:1030px;width:100%;text-align:center;z-index:4;font-weight:900;font-size:38px}
+  .hook span{color:var(--y)}
+  .offer{position:absolute;top:1100px;width:100%;display:flex;justify-content:center;align-items:center;gap:20px;z-index:5}
+  .price{display:flex;align-items:baseline;gap:16px;background:var(--r);border-radius:18px;padding:4px 30px 12px;
+    box-shadow:0 0 0 5px var(--y)}
+  .price .now{font-size:76px;font-weight:900;line-height:1.1}
+  .price small{font-size:30px;font-weight:900}
+  .price .old{font-size:38px;font-weight:900;opacity:.8;text-decoration:line-through 4px}
+  .seats{background:var(--y);color:var(--k);font-weight:900;font-size:34px;padding:10px 24px 14px;border-radius:14px}
+  .cta{position:absolute;bottom:30px;left:40px;right:40px;z-index:5;display:flex;align-items:center;justify-content:space-between;
+    background:#fff;border-radius:22px;padding:10px 10px 10px 30px}
+  .btn{display:flex;align-items:center;gap:14px;background:var(--wa);color:#fff;font-weight:900;font-size:36px;padding:6px 28px 14px;border-radius:16px}
+  .btn svg{width:44px;height:44px;margin-top:6px}
+  .num{color:var(--k);font-weight:900;font-size:50px;direction:ltr;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="ad">
+  <div class="photo"></div>
+  <div class="slash"></div>
+  <div class="logo">DODIT <small>Studio</small></div>
+  <div class="live"><i></i>عرض لفترة محدودة</div>
+
+  <div class="tag"></div>
+  <div class="head">الـ <b>10</b> ريلز</div>
+  <div class="hook"></div>
+
+  <div class="offer">
+    <div class="price"><span class="now">3500</span><small>جنيه</small><span class="old">6000</span></div>
+    <div class="seats">🔥 لأول 10 عملاء بس</div>
+  </div>
+
+  <div class="cta">
+    <div class="btn">
+      <svg viewBox="0 0 32 32" fill="#fff"><path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.4.7 4.7 1.9 6.7L3 29l6.9-2.2c1.9 1 4 1.6 6.1 1.6 7 0 12.7-5.7 12.7-12.7S23 3 16 3zm0 23.1c-2 0-3.9-.6-5.5-1.6l-.4-.2-4.1 1.3 1.3-4-.3-.4c-1.1-1.7-1.7-3.6-1.7-5.6C5.3 9.8 10.1 5 16 5s10.7 4.8 10.7 10.6S21.9 26.1 16 26.1zm5.9-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.3-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.7 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>
+      احجز دلوقتي
+    </div>
+    <div class="num">01025560533</div>
+  </div>
+</div>
+<script>
+  const V={
+    doctor:  {img:'img-general.jpg', bg:['auto 1125px','-456px -120px'],  tag:'يا دكتور',         hook:'عيادتك تبقى <span>التريند</span> على السوشيال'},
+    engineer:{img:'img-engineer.jpg',bg:['auto 1125px','-534px -100px'],tag:'يا بشمهندس',       hook:'مشاريعك <span>تتشاف</span> وتجيبلك عملاء'},
+    business:{img:'img-general.jpg', bg:['auto 1125px','-828px -120px'],tag:'يا صاحب البيزنس',  hook:'شركتك تبقى <span>البراند رقم 1</span>'},
+    general: {img:'img-general.jpg', bg:['auto 860px','50% 0'], tag:'لكل صاحب مهنة',    hook:'دكتور؟ مهندس؟ صاحب بيزنس؟ <span>العرض ليك</span>'}
+  };
+  const v=V[new URLSearchParams(location.search).get('v')]||V.general;
+  const ph=document.querySelector('.photo');ph.style.backgroundImage=`url(${v.img})`;ph.style.backgroundSize=v.bg[0];ph.style.backgroundPosition=v.bg[1];
+  document.querySelector('.tag').textContent=v.tag;
+  document.querySelector('.hook').innerHTML=v.hook;
+</script>
+</body>
+</html>
