@@ -31,6 +31,7 @@
       <nav class="nav" id="nav">
         <a href="#about" data-i18n="nav.about"></a>
         <a href="#services" data-i18n="nav.services"></a>
+        <a href="#reels" data-i18n="nav.reels"></a>
         <a href="#portfolio" data-i18n="nav.portfolio"></a>
         <a href="#testimonials" data-i18n="nav.testimonials"></a>
         <a href="#contact" data-i18n="nav.contact"></a>
@@ -103,6 +104,25 @@
           <div class="aud-card reveal"><div class="aud-ico">⚖️</div><h3 data-i18n="cat.lawyers"></h3><p data-i18n="aud.lawyers"></p></div>
           <div class="aud-card reveal"><div class="aud-ico">📚</div><h3 data-i18n="cat.teachers"></h3><p data-i18n="aud.teachers"></p></div>
           <div class="aud-card reveal"><div class="aud-ico">🏢</div><h3 data-i18n="cat.realestate"></h3><p data-i18n="aud.realestate"></p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REELS FOR ANY BRAND (carousel) -->
+    <section class="section section-alt reels" id="reels">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="section-kicker" data-i18n="reels.kicker"></p>
+          <h2 data-i18n="reels.title"></h2>
+          <p data-i18n="reels.sub"></p>
+        </div>
+        <div class="rc reveal" id="reelsCarousel" role="region" aria-roledescription="carousel" tabindex="0">
+          <div class="rc-track" id="rcTrack"></div>
+          <div class="rc-controls">
+            <button type="button" class="rc-arrow" id="rcPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="rc-dots" id="rcDots"></div>
+            <button type="button" class="rc-arrow" id="rcNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
         </div>
       </div>
     </section>

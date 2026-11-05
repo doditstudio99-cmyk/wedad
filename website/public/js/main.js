@@ -70,6 +70,7 @@
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     $('#langBtn').textContent = lang === 'ar' ? 'EN' : 'ع';
     $$('[data-i18n]').forEach((el) => (el.textContent = t(el.dataset.i18n)));
+    renderReels();
     if (site) render();
   }
   $('#langBtn').addEventListener('click', () => {
@@ -463,6 +464,133 @@
       if (p < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
+  }
+
+  /* ---------------- "reels for any brand" carousel ---------------- */
+  const rc = {
+    root: $('#reelsCarousel'), track: $('#rcTrack'), dots: $('#rcDots'),
+    index: 0, timer: null, paused: false, visible: false, lockUntil: 0,
+    reduced: !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches),
+  };
+  const RC_DELAY = 6000;
+
+  function renderReels() {
+    const slides = t('reels.slides');
+    if (!Array.isArray(slides)) return;
+    const total = slides.length;
+    const label = (i) => fmt(t('reels.slide'), { n: i + 1, total });
+    rc.root.setAttribute('aria-label', t('reels.kicker'));
+    $('#rcPrev').setAttribute('aria-label', t('reels.prev'));
+    $('#rcNext').setAttribute('aria-label', t('reels.next'));
+    rc.track.replaceChildren(
+      ...slides.map((sl, i) =>
+        h('article', { class: 'rc-slide', role: 'group', 'aria-roledescription': 'slide', 'aria-label': label(i) },
+          h('div', { class: 'rc-text' },
+            h('span', { class: 'rc-for' }, h('i', { text: sl.icon }), t('reels.for')),
+            h('h3', { text: sl.title }),
+            h('p', { text: sl.desc }),
+            h('b', { class: 'rc-ideas-title', text: t('reels.ideas') }),
+            h('ul', { class: 'rc-ideas' }, sl.ideas.map((idea) => h('li', { text: idea }))),
+            h('a', { class: 'btn btn-primary', href: '#booking', text: t('reels.cta') })),
+          h('div', { class: 'rc-visual', 'aria-hidden': 'true' },
+            h('div', { class: 'rc-phone' },
+              h('div', { class: 'rc-screen tone-' + sl.tone },
+                h('div', { class: 'rc-top' }, h('span', { text: 'Reels' }), h('span', { class: 'rc-views', text: '▶ ' + sl.views })),
+                h('div', { class: 'rc-emoji', text: sl.icon }),
+                h('div', { class: 'rc-side' },
+                  h('span', {}, h('i', { text: '❤' }), h('small', { text: sl.views })),
+                  h('span', {}, h('i', { text: '💬' }), h('small', { text: '1.2K' })),
+                  h('span', {}, h('i', { text: '↗' }), h('small', { text: '860' }))),
+                h('div', { class: 'rc-bottom' },
+                  h('div', { class: 'rc-brand' }, h('span', { class: 'rc-avatar', text: sl.icon }), h('b', { text: sl.title })),
+                  h('p', { text: sl.caption }),
+                  h('div', { class: 'rc-progress' }, h('span'))))),
+            h('div', { class: 'rc-badge' }, h('b', { text: '+' + sl.views }), h('span', { text: t('reels.views') }))))
+      )
+    );
+    rc.dots.replaceChildren(
+      ...slides.map((_, i) =>
+        h('button', { type: 'button', class: 'rc-dot', 'aria-label': label(i), onclick: () => { rcGo(i); rcRestart(); } }))
+    );
+    rcSetActive(Math.min(rc.index, total - 1));
+    // keep the same slide in view after a language switch (the direction flips)
+    requestAnimationFrame(() => rcGo(rc.index, true));
+  }
+
+  function rcSlides() { return $$('.rc-slide', rc.track); }
+
+  function rcGo(i, instant) {
+    const slides = rcSlides();
+    if (!slides.length) return;
+    i = (i + slides.length) % slides.length;
+    const delta = slides[i].getBoundingClientRect().left - rc.track.getBoundingClientRect().left;
+    // ignore the scroll events of our own animation, so quick clicks don't get overridden mid-way
+    rc.lockUntil = performance.now() + 800;
+    rc.track.scrollBy({ left: delta, behavior: instant || rc.reduced ? 'auto' : 'smooth' });
+    rcSetActive(i);
+  }
+
+  function rcSetActive(i) {
+    rc.index = i;
+    rcSlides().forEach((el, n) => {
+      const on = n === i;
+      el.classList.toggle('active', on);
+      el.setAttribute('aria-hidden', on ? 'false' : 'true');
+      const cta = $('.btn', el);
+      if (on) cta.removeAttribute('tabindex'); else cta.setAttribute('tabindex', '-1');
+    });
+    $$('.rc-dot', rc.dots).forEach((d, n) => (n === i ? d.setAttribute('aria-current', 'true') : d.removeAttribute('aria-current')));
+  }
+
+  // Swiping (native scroll-snap) moves the active dot too
+  let rcRaf = 0;
+  rc.track.addEventListener('scroll', () => {
+    cancelAnimationFrame(rcRaf);
+    rcRaf = requestAnimationFrame(() => {
+      if (performance.now() < rc.lockUntil) return;
+      const box = rc.track.getBoundingClientRect();
+      const mid = box.left + box.width / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      rcSlides().forEach((el, n) => {
+        const r = el.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - mid);
+        if (d < bestDist) { bestDist = d; best = n; }
+      });
+      if (best !== rc.index) rcSetActive(best);
+    });
+  }, { passive: true });
+
+  function rcStop() { clearInterval(rc.timer); rc.timer = null; }
+  function rcRestart() {
+    rcStop();
+    if (rc.reduced || rc.paused || !rc.visible || document.hidden) return;
+    rc.timer = setInterval(() => rcGo(rc.index + 1), RC_DELAY);
+  }
+  $('#rcPrev').addEventListener('click', () => { rcGo(rc.index - 1); rcRestart(); });
+  $('#rcNext').addEventListener('click', () => { rcGo(rc.index + 1); rcRestart(); });
+  rc.root.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const forward = (e.key === 'ArrowLeft') === (document.documentElement.dir === 'rtl');
+    rcGo(rc.index + (forward ? 1 : -1));
+    rcRestart();
+  });
+  // Pause while the visitor hovers, focuses or touches it, or when it is off-screen
+  const rcPause = (p) => { rc.paused = p; rcRestart(); };
+  rc.root.addEventListener('mouseenter', () => rcPause(true));
+  rc.root.addEventListener('mouseleave', () => rcPause(false));
+  rc.root.addEventListener('focusin', () => rcPause(true));
+  rc.root.addEventListener('focusout', (e) => { if (!rc.root.contains(e.relatedTarget)) rcPause(false); });
+  rc.track.addEventListener('touchstart', () => { rc.paused = true; rcStop(); }, { passive: true });
+  rc.track.addEventListener('touchend', () => rcPause(false), { passive: true });
+  document.addEventListener('visibilitychange', rcRestart);
+  window.addEventListener('resize', () => rcGo(rc.index, true));
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([en]) => { rc.visible = en.isIntersecting; rcRestart(); }, { threshold: 0.4 }).observe(rc.root);
+  } else {
+    rc.visible = true;
+    rcRestart();
   }
 
   $('#year').textContent = new Date().getFullYear();
