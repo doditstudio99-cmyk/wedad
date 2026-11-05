@@ -139,5 +139,18 @@
     <div class="num"><small>فون أو واتساب</small>01025560533</div>
   </div>
 </div>
+<script>
+  // ?v=doctor | engineer | business | general
+  const V={
+    doctor:  {hook:'عايز عيادتك تبقى التريند؟',          tag:'يا دكتور',          size:104, bg:['1080px','50% 0']},
+    engineer:{hook:'عايز مشاريعك تتشاف وتجيبلك عملاء؟',    tag:'يا بشمهندس',        size:104, bg:['1080px','50% 0']},
+    business:{hook:'عايز شركتك تبقى البراند رقم 1؟',     tag:'يا صاحب البيزنس',   size:86,  bg:['1080px','50% 0']},
+    general: {hook:'دكتور؟ مهندس؟ صاحب بيزنس؟',          tag:'لكل صاحب مهنة',     size:90,  bg:['1080px','50% 0']}
+  };
+  const v=V[new URLSearchParams(location.search).get('v')]||V.doctor;
+  document.querySelector('.hook .q').textContent=v.hook;
+  const t=document.querySelector('.yadr span'); t.textContent=v.tag; t.style.fontSize=v.size+'px';
+  const ph=document.querySelector('.photo'); ph.style.backgroundSize=v.bg[0]+' auto'; ph.style.backgroundPosition=v.bg[1];
+</script>
 </body>
 </html>
