@@ -15,7 +15,7 @@ import {
   StudioBackground,
   Viewfinder,
 } from "./Fx";
-import { arNum, C, cairo, lalezar, montserrat } from "./theme";
+import { num, C, cairo, lalezar, montserrat } from "./theme";
 import { f, VALUE_BEATS } from "./timeline";
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -51,7 +51,7 @@ export const HookScene: React.FC = () => {
             opacity: cardIn,
           }}
         >
-          ١ / ٣٠
+          1 / 30
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{ justifyContent: "flex-end", paddingBottom: 330 }}>
@@ -179,7 +179,7 @@ export const MonthScene: React.FC = () => {
                     color: "white",
                   }}
                 >
-                  {arNum(i + 1)}
+                  {num(i + 1)}
                 </div>
               </div>
             );
@@ -189,7 +189,7 @@ export const MonthScene: React.FC = () => {
       <AbsoluteFill style={{ justifyContent: "flex-end", paddingBottom: 230 }}>
         <PopText
           text="وبأسعار تخلّيك تبدأ من غير ما تفكّر كتير!"
-          delay={f(2.7)}
+          delay={f(3.2)}
           size={70}
           stagger={2}
           highlight={["تبدأ"]}
@@ -246,10 +246,10 @@ export const IntroScene: React.FC = () => {
         </div>
         <div style={{ height: 120 }} />
         <PopText
-          text="عندك باقات تختار منها"
+          text="عندك 3 باقات تختار منهم"
           delay={f(1.5)}
           size={92}
-          highlight={["باقات"]}
+          highlight={["3", "باقات"]}
         />
       </AbsoluteFill>
     </AbsoluteFill>
@@ -384,7 +384,7 @@ export const PriceScene: React.FC<{
             opacity: Math.min(1, head * 1.5),
           }}
         >
-          {arNum(reels)} <span style={{ color: C.orange }}>{reelWord}</span>
+          {num(reels)} <span style={{ color: C.orange }}>{reelWord}</span>
         </div>
         <div
           style={{
@@ -408,7 +408,7 @@ export const PriceScene: React.FC<{
               lineHeight: 1.15,
             }}
           >
-            {arNum(count)}
+            {num(count)}
           </span>
           <span
             style={{
@@ -587,11 +587,11 @@ export const BookScene: React.FC = () => {
   const { fps } = useVideoConfig();
   const btn = spring({ frame: frame - 10, fps, config: { damping: 12 } });
   const brand = spring({
-    frame: frame - f(1.45),
+    frame: frame - f(1.6),
     fps,
     config: { damping: 12 },
   });
-  const tapAt = f(0.85);
+  const tapAt = f(0.9);
   const fingerX = interpolate(frame, [15, tapAt], [380, 120], {
     ...clamp,
     easing: Easing.out(Easing.quad),
@@ -731,7 +731,7 @@ export const EndScene: React.FC<{ whatsapp: string }> = ({ whatsapp }) => {
         <div style={{ height: 150 }} />
         <PopText
           text="خلّي محتواك يتكلّم عنك!"
-          delay={f(1.3)}
+          delay={f(1.45)}
           size={104}
           highlight={["يتكلّم", "عنك!"]}
         />

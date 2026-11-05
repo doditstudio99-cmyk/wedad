@@ -5,16 +5,16 @@
 export const FPS = 30;
 
 export const SCENES = {
-  hook: { from: 0, to: 3.7 }, // لسه بتصور ريل واحد...
-  month: { from: 3.7, to: 9.5 }, // طيب، إيه رأيك تصور محتوى شهر كامل...
-  intro: { from: 9.5, to: 13.1 }, // مع DODIT STUDIO عندك أربع باقات...
-  p1: { from: 13.1, to: 14.85 }, // خمسة ريلز بألفين جنيه
-  p2: { from: 14.85, to: 17.5 }, // عشرة ريلز بتلاتة آلاف وخمسمية جنيه
-  p3: { from: 17.5, to: 22.7 }, // ولو عايز تكبر أكتر، عشرين ريل بستة آلاف وميتين وخمسين جنيه
-  value: { from: 22.7, to: 30.5 }, // إحنا مش بنصورلك فيديوهات وبس...
-  stop: { from: 30.5, to: 32.25 }, // بطل تأجل محتواك!
-  book: { from: 32.25, to: 34.85 }, // واحجز باقتك دلوقتي مع DODIT STUDIO
-  end: { from: 34.85, to: 40.5 }, // DODIT STUDIO... خلي محتواك يتكلم عنك!
+  hook: { from: 0, to: 3.9 }, // لسه بتصور ريل واحد...
+  month: { from: 3.9, to: 10.1 }, // طب، إيه رأيك تصور محتوى شهر كامل...
+  intro: { from: 10.1, to: 13.8 }, // مع DODIT STUDIO عندك تلات باقات...
+  p1: { from: 13.8, to: 15.7 }, // خمس ريلز بألفين جنيه
+  p2: { from: 15.7, to: 18.6 }, // عشر ريلز بتلات تلاف وخمسمية جنيه
+  p3: { from: 18.6, to: 24.0 }, // ولو عايز تكبر أكتر، عشرين ريل بست تلاف وميتين وخمسين جنيه
+  value: { from: 24.0, to: 32.1 }, // إحنا مش بنصورلك فيديوهات وبس...
+  stop: { from: 32.1, to: 34.1 }, // بطل تأجل محتواك!
+  book: { from: 34.1, to: 37.05 }, // واحجز باقتك دلوقتي مع DODIT STUDIO
+  end: { from: 37.05, to: 42.5 }, // DODIT STUDIO... خلي محتواك يتكلم عنك!
 } as const;
 
 export type SceneName = keyof typeof SCENES;
@@ -33,9 +33,9 @@ export const sceneFrames = (name: SceneName) => ({
 // reels and the price, measured from public/dodit-promo/voiceover.mp3.
 export const PRICE_TIMING = {
   p1: { reels: 0.2, price: 0.9 },
-  p2: { reels: 0.15, price: 0.95 },
-  p3: { reels: 2.3, price: 3.2 },
+  p2: { reels: 0.2, price: 1.0 },
+  p3: { reels: 2.1, price: 3.2 },
 } as const;
 
 // When each of the four value lines starts (seconds into the value scene).
-export const VALUE_BEATS = [0, 2.5, 4.4, 6.1];
+export const VALUE_BEATS = [0, 2.8, 4.8, 6.5];

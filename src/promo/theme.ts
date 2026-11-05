@@ -40,12 +40,8 @@ export const cairo = "Cairo";
 export const lalezar = "Lalezar";
 export const montserrat = "Montserrat";
 
-const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
-
-/** 6250 -> "٦٬٢٥٠" */
-export const arNum = (n: number): string => {
-  const s = Math.round(n)
+/** 6250 -> "6,250" (English digits, easy to read at a glance) */
+export const num = (n: number): string =>
+  Math.round(n)
     .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, "٬");
-  return s.replace(/\d/g, (d) => AR_DIGITS[Number(d)]);
-};
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
