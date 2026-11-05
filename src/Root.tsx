@@ -1,6 +1,8 @@
 import { Composition, staticFile } from "remotion";
 import { Scene, myCompSchema } from "./Scene";
 import { getMediaMetadata } from "./helpers/get-media-metadata";
+import { DoditPromo, DoditPromoProps } from "./promo/DoditPromo";
+import { FPS, TOTAL_FRAMES } from "./promo/timeline";
 
 // Welcome to the Remotion Three Starter Kit!
 // Two compositions have been created, showing how to use
@@ -20,6 +22,32 @@ import { getMediaMetadata } from "./helpers/get-media-metadata";
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      {/* DODIT Studio reels promo, vertical 9:16 for Facebook Reels */}
+      <Composition
+        id="DoditReelsPromo"
+        component={DoditPromo}
+        fps={FPS}
+        durationInFrames={TOTAL_FRAMES}
+        width={1080}
+        height={1920}
+        defaultProps={
+          {
+            whatsapp: "+20 100 000 0000",
+            voiceover: null,
+          } satisfies DoditPromoProps
+        }
+        calculateMetadata={async ({ props }) => {
+          // Use public/dodit-promo/voiceover.mp3 automatically once it exists.
+          if (props.voiceover) return { props };
+          const path = "dodit-promo/voiceover.mp3";
+          try {
+            const res = await fetch(staticFile(path), { method: "HEAD" });
+            return { props: { ...props, voiceover: res.ok ? path : null } };
+          } catch {
+            return { props };
+          }
+        }}
+      />
       <Composition
         id="Scene"
         component={Scene}
