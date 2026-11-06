@@ -1,8 +1,8 @@
 // Starting content for a fresh install. Everything here can be edited from the admin panel.
-const crypto = require('crypto');
+import crypto from 'node:crypto';
 const id = () => crypto.randomBytes(8).toString('hex');
 
-function defaultData() {
+export function defaultData() {
   return {
     settings: {
       studioName: 'Dodit Studio',
@@ -161,4 +161,3 @@ function defaultData() {
   };
 }
 
-module.exports = { defaultData };

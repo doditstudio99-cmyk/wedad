@@ -14,7 +14,7 @@
    - Execute as: **Me**
    - Who has access: **Anyone**
    - **Deploy**، وبعدين انسخ **Web app URL** (بيخلص بـ `/exec`).
-7. حط الرابط في [`website/public/js/config.js`](../website/public/js/config.js) مكان `apiUrl: ''`.
+7. حط الرابط في [`google-sheets/web-app-url.txt`](./web-app-url.txt). Netlify وGitHub Pages بيكتبوه في `js/config.js` لوحدهم وقت الرفع.
 
 ## الخطوة ٢: الموقع على Netlify (مجاني)
 1. ادخل https://app.netlify.com ← **Sign up with GitHub**.
@@ -43,5 +43,5 @@
 4. لو التحديث فيه تغيير في الحجز نفسه: **Deploy ← Manage deployments ← ✏️ ← New version ← Deploy**.
 
 ## لو عدّلت Code.gs
-- الملف ده **متولد تلقائياً**: عدّل `Code.template.gs`، وبعدين شغّل `node google-sheets/build.js`.
+- الملف ده **متولد تلقائياً**: عدّل `Code.template.gs`، وبعدين شغّل `node google-sheets/build.cjs`.
 - بعد ما تلزق كود جديد في Apps Script: **Deploy ← Manage deployments ← ✏️ ← Version: New version ← Deploy**، عشان الرابط يفضل زي ما هو.
