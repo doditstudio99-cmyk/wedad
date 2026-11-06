@@ -1,10 +1,11 @@
 // Generates Code.gs (the Google Apps Script backend) from Code.template.gs,
-// filling the starting content from ../website/seed.js so both versions share it.
-// Run: node google-sheets/build.js
+// filling the starting content from ../website/lib/seed.js so both versions share it.
+// Run: node google-sheets/build.cjs
 const fs = require('fs');
 const path = require('path');
-const { defaultData } = require('../website/seed');
 
+(async () => {
+const { defaultData } = await import('../website/lib/seed.js');
 const d = defaultData();
 const s = d.settings;
 const CAT_AR = { doctors: 'دكاترة', lawyers: 'محامين', teachers: 'مدرسين', realestate: 'عقارات', business: 'أصحاب أعمال', other: 'أخرى' };
@@ -55,3 +56,4 @@ const tpl = fs.readFileSync(path.join(__dirname, 'Code.template.gs'), 'utf8');
 const out = '// ⚠️ ملف متولد تلقائياً من Code.template.gs — انسخه كله في Apps Script\n' + tpl.replace('__SEED__', JSON.stringify(seed, null, 2));
 fs.writeFileSync(path.join(__dirname, 'Code.gs'), out);
 console.log('Code.gs written', (out.length / 1024).toFixed(1) + 'KB');
+})();

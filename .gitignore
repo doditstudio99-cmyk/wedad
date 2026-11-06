@@ -8,3 +8,5 @@ out
 
 # Website runtime data (bookings, uploads)
 website/data
+website/.next
+website/next-env.d.ts

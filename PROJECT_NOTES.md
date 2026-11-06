@@ -12,12 +12,12 @@
 ## النسختين (نفس الواجهة: `website/public/`)
 | | المدفوعة | المجانية |
 |---|---|---|
-| السيرفر | Node.js (`website/server.js`) | Google Apps Script (`google-sheets/Code.gs`) |
-| البيانات | `DATA_DIR/db.json` + uploads | Google Sheet على حساب صاحب الاستوديو |
+| السيرفر | **Next.js** (App Router): API في `website/app/api/**/route.js`، والمنطق في `website/lib/` | Google Apps Script (`google-sheets/Code.gs`) |
+| البيانات | على الديسك `DATA_DIR/db.json` + uploads، أو على Vercel: Redis + Vercel Blob (`website/lib/store.js`) | Google Sheet على حساب صاحب الاستوديو |
 | لوحة التحكم | `/admin` (رفع صور وفيديوهات) | الشيت نفسه (الصور لينكات) |
-| الاستضافة | Render (`render.yaml`)، حوالي 7 دولار في الشهر | Netlify مجاناً (`netlify.toml`) |
+| الاستضافة | **Vercel** (Root Directory = `website`، وصّلي Redis و Blob من Storage) أو Render (`render.yaml`) | Netlify مجاناً (`netlify.toml`) |
 | إشعار الحجز | — | إيميل تلقائي |
-| إزاي تتختار | `js/config.js` السيرفر بيرجّعه فاضي دايماً | `apiUrl` في `website/public/js/config.js` = رابط الـ Web app |
+| إزاي تتختار | `public/js/config.js` بيفضل فاضي (`apiUrl: ''`) | وقت الـ build: `google-sheets/write-config.cjs` بيكتب الرابط من `google-sheets/web-app-url.txt` |
 
 ## لينكات
 - **الموقع (المجاني، شغال):** https://doditstudio.netlify.app — Netlify بيعمل نشر تلقائي من فرع `main`
@@ -36,10 +36,11 @@
 - [x] **الحجز من رصيد الباقة** (المدفوعة بس): في الموقع اختيار "عندي باقة — أحجز من رصيدي". السيرفر بيدوّر على باقة شغالة بنفس الموبايل (`normPhone`، والأقدم بيتخصم منها الأول)، ويربط الحجز بيها (`packageId`). في `/admin` الحجز عليه علامة 📦، ولما حالته تبقى "تم التصوير" بيفتح تسجيل الاستهلاك على طول. الرصيد بيتخصم عند تسجيل الاستهلاك، مش عند الحجز. الحجز اليدوي يقدر يختار باقة. الخيار ده مش بيظهر في النسخة المجانية (`features.packageBooking`).
 - [ ] **المجانية:** صاحب الاستوديو لازم يحدّث الكود في الشيت ويشغّل `setup` تاني عشان يظهر تبويب "باقات العملاء".
 - [x] **النسخ الاحتياطي** (المدفوعة): في `/admin` ← الإعدادات ← "النسخة الاحتياطية": تحميل نسخة كاملة JSON (`/api/admin/backup`، من غير كلمة السر)، وتصدير الحجوزات وباقات العملاء CSV للـ Excel، واسترجاع من ملف (`/api/admin/restore`، بيحفظ نسخة من الحالي في `DATA_DIR/backups/before-restore-*.json`). كمان في نسخة يومية أوتوماتيك `DATA_DIR/backups/daily-YYYY-MM-DD.json`، والسيرفر بيحتفظ بآخر ١٤ يوم. الصور المرفوعة (`DATA_DIR/uploads`) مش جوه ملف النسخة. في النسخة المجانية: الشيت نفسه File ← Download.
+- [x] **التحويل لـ Next.js** (App Router، full-stack، من غير Express): ٢٤ API route بتشاور على `lib/endpoints.js`. التخزين ملفات على الديسك أو Redis + Blob على Vercel. القفل في Redis بيمنع الحجز المكرر بين أكتر من instance (اتجرب: ١٠ طلبات في نفس الوقت على نسختين، واحد نجح بس). الصفحات بتعرض نفس HTML بتاع `public/` وبتشغّل نفس الـ JS بالترتيب (`app/legacy-scripts.js`).
 - [ ] البيانات الحقيقية: رقم الواتساب (حالياً `201000000000` مؤقت)، والعنوان، والأسعار، ولينكات السوشيال، وصور وفيديوهات الأعمال، وأرقام "من نحن" (300+ / 80+ / 4 مكتوبة في `index.html`).
 
 ## ملاحظات تقنية
-- المحتوى المبدئي في `website/seed.js`، ومنه بيتولد محتوى الشيت: `node google-sheets/build.js` (عدّل `Code.template.gs` مش `Code.gs`).
+- المحتوى المبدئي في `website/lib/seed.js`، ومنه بيتولد محتوى الشيت: `node google-sheets/build.cjs` (عدّل `Code.template.gs` مش `Code.gs`).
 - الأوقات بتوقيت `Africa/Cairo`. الجمعة إجازة، والمواعيد من 12 الظهر لـ 10 بالليل، والمعاد ساعة.
 - الحجز المكرر ممنوع: في Node بالتحقق في نفس الـ tick، وفي Apps Script بـ `LockService`.
 - Apps Script محتاج طلب POST "بسيط" (من غير `Content-Type: application/json`) عشان CORS، وده متعمل في `api.book` في `main.js`.
